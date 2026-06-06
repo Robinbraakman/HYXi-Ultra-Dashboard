@@ -113,6 +113,15 @@ Gebruik op eigen risico.
 Controleer altijd zelf de berekeningen voor rendement, winst en terugverdientijd.
 
 ---
+## 🤝 Bijdragen
+
+Verbeteringen, bugfixes en ideeën zijn altijd welkom.
+
+Maak gerust een Issue of Pull Request aan.
+
+ ## ⭐ Ondersteun het project
+
+Vind je dit dashboard handig? Geef deze repository dan een ster ⭐ op GitHub.
 
 ## 📜 Licentie
 
