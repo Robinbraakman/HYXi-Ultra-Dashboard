@@ -19,7 +19,7 @@ Een geavanceerd Home Assistant dashboard voor HYXi thuisbatterijen met:
 
 ## Screenshot
 
-Voeg hier een screenshot van het dashboard toe.
+<img width="1642" height="311" alt="image" src="https://github.com/user-attachments/assets/f33d6843-9b93-4e84-94ed-e59802bb4edf" />
 
 ---
 
