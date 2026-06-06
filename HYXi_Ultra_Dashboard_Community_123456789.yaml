@@ -1,0 +1,446 @@
+views:
+  - title: HYXi
+    path: hyxi
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        column_span: 3
+        cards:
+          - type: custom:button-card
+            name: 🔋 HYXI BATTERIJ ULTRA DASHBOARD
+            view_layout:
+              grid-column: span 3
+            show_icon: false
+            show_state: false
+            show_label: false
+            styles:
+              card:
+                - border-radius: 26px
+                - padding: 22px
+                - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                - border: 1px solid rgba(0,200,255,0.75)
+                - border-left: 4px solid rgba(102,255,122,0.95)
+                - box-shadow: >
+                    0 0 16px rgba(0,180,255,0.75),
+                    inset 0 0 22px rgba(0,80,255,0.32),
+                    0 0 28px rgba(102,255,122,0.24)
+                - color: "#9eeeff"
+                - min-height: 620px
+                - overflow: hidden
+              name:
+                - justify-self: start
+                - color: "#dffbff"
+                - font-size: 26px
+                - font-weight: 900
+                - text-transform: uppercase
+                - text-shadow: 0 0 10px rgba(0,180,255,0.9)
+                - margin-bottom: 14px
+              grid:
+                - grid-template-areas: '"n" "battery"'
+                - grid-template-columns: 1fr
+                - grid-template-rows: auto 1fr
+
+            custom_fields:
+              battery: |
+                [[[
+                  const get = (id) => parseFloat(states[id]?.state || 0);
+
+                  const soc = get('sensor.hyxi_123456789_batsoc');
+                  const geladen = get('sensor.hyxi_123456789_totalechg');
+                  const ontladen = get('sensor.hyxi_123456789_totaledchg');
+                  const laadvermogen = get('sensor.hyxi_123456789_bat_charging');
+                  const ontlaadvermogen = get('sensor.hyxi_123456789_bat_discharging');
+
+                  const capaciteit = 6.0;
+                  const actueleKwh = capaciteit * (soc / 100);
+
+                  const verlies = geladen - ontladen;
+                  const rendement = geladen > 0 ? (ontladen / geladen * 100) : 0;
+                  const cycli = ontladen / capaciteit;
+
+                  const stroomprijs = 0.1357;
+                  const terugleverprijs = 0.0151;
+                  const voordeel = stroomprijs - terugleverprijs;
+
+                  const winstTotaal = ontladen * voordeel;
+                  const winstVandaag = (ontlaadvermogen / 1000) * voordeel;
+
+                  const investering = 1870;
+                  const staffelVoordeel = 0;
+                  const terugverdiend = winstTotaal + staffelVoordeel;
+                  const terugPercent = investering > 0
+                    ? Math.max(0, Math.min((terugverdiend / investering) * 100, 100))
+                    : 0;
+
+                  const start = new Date('2026-01-01T00:00:00');
+                  const dagen = Math.max((new Date() - start) / 86400000, 0);
+                  const jaarprognose = dagen > 0 ? (terugverdiend / dagen * 365) : 0;
+                  const terugverdientijd =
+                    jaarprognose > 0 && investering > 0
+                      ? investering / jaarprognose
+                      : 0;
+
+                  let modus = 'Stand-by';
+                  let modusIcon = '⏸️';
+                  let pulseClass = 'idle';
+
+                  if (laadvermogen > 5) {
+                    modus = 'Laden';
+                    modusIcon = '⚡';
+                    pulseClass = 'charging';
+                  } else if (ontlaadvermogen > 5) {
+                    modus = 'Ontladen';
+                    modusIcon = '🔌';
+                    pulseClass = 'discharging';
+                  }
+
+                  let score = 'C';
+                  if (rendement >= 85) score = 'A+';
+                  else if (rendement >= 75) score = 'A';
+                  else if (rendement >= 65) score = 'B';
+
+                  const fill = Math.max(8, Math.min(soc, 100));
+
+                  return `
+                    <div class="battery-dashboard">
+
+                      <div class="battery-main panel">
+                        <div class="soc-ring" style="background:
+                          radial-gradient(circle at center, rgba(4,8,20,1) 0 56%, transparent 57%),
+                          conic-gradient(#66ff7a 0 ${Math.min(soc,100)}%, rgba(158,238,255,0.18) ${Math.min(soc,100)}% 100%);">
+                          <div class="soc-core">
+                            <div class="soc-value">${soc.toFixed(0)}%</div>
+                            <div class="soc-label">${modus}</div>
+                          </div>
+                        </div>
+
+                        <div class="status-list">
+                          ${modusIcon} Modus: <b>${modus}</b><br>
+                          🟢 In accu: <b>${actueleKwh.toFixed(2)} kWh</b><br>
+                          🔋 Max: <b>${capaciteit.toFixed(1)} kWh</b><br>
+                          📈 Rendement: <b>${rendement.toFixed(1)}%</b><br>
+                          🏆 Score: <b>${score}</b>
+                        </div>
+                      </div>
+
+                      <div class="battery-section panel">
+                        <div class="section-title">💎 TOTAAL</div>
+                        <div class="section-sub">⚡ Geladen</div>
+                        <div class="blue-value">${geladen.toFixed(1)} kWh</div>
+                        <div class="divider"></div>
+                        <div class="section-sub">🔌 Ontladen</div>
+                        <div class="orange-value">${ontladen.toFixed(1)} kWh</div>
+                      </div>
+
+                      <div class="battery-section panel">
+                        <div class="section-title">⚡ LIVE</div>
+                        <div class="section-sub">Laden</div>
+                        <div class="blue-value">${laadvermogen.toFixed(0)} W</div>
+                        <div class="divider"></div>
+                        <div class="section-sub">Ontladen</div>
+                        <div class="orange-value">${ontlaadvermogen.toFixed(0)} W</div>
+                      </div>
+
+                      <div class="battery-section panel">
+                        <div class="section-title">📊 PRESTATIE</div>
+                        <div class="section-sub">Cycli</div>
+                        <div class="blue-value">${cycli.toFixed(1)}</div>
+                        <div class="divider"></div>
+                        <div class="section-sub">Verlies</div>
+                        <div class="orange-value">${verlies.toFixed(1)} kWh</div>
+                      </div>
+
+                      <div class="battery-section panel">
+                        <div class="section-title">💰 WINST</div>
+                        <div class="section-sub">Winst totaal</div>
+                        <div class="green-value">€ ${winstTotaal.toFixed(0)}</div>
+                        <div class="divider"></div>
+                        <div class="section-sub">Winst nu/uur indicatie</div>
+                        <div class="green-value small">€ ${winstVandaag.toFixed(2)}</div>
+                      </div>
+
+                      <div class="battery-section panel">
+                        <div class="section-title">⏳ TERUGVERDIEN</div>
+                        <div class="section-sub">Terugverdiend</div>
+                        <div class="orange-value">€ ${terugverdiend.toFixed(0)}</div>
+                        <div class="payback-bar">
+                          <div class="payback-fill" style="width:${terugPercent}%"></div>
+                        </div>
+                        <div class="section-sub">${terugPercent.toFixed(1)}% van € ${investering}</div>
+                        <div class="orange-value small">${terugverdientijd.toFixed(1)} jaar</div>
+                      </div>
+
+                      <div class="battery-section battery-right panel">
+                        <div class="battery-graphic ${pulseClass}">
+                          <div class="battery-top"></div>
+                          <div class="battery-body">
+                            <div class="battery-fill" style="height:${fill}%"></div>
+                            <div class="battery-bolt">⚡</div>
+                          </div>
+                        </div>
+                        <div class="section-sub">Actueel in accu</div>
+                        <div class="blue-value">${actueleKwh.toFixed(2)} kWh</div>
+                      </div>
+
+                    </div>
+                  `;
+                ]]]
+
+            extra_styles: |
+              .battery-dashboard {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 16px;
+                width: 100%;
+                box-sizing: border-box;
+              }
+
+              .panel {
+                background: rgba(0,80,255,0.08);
+                border: 1px solid rgba(158,238,255,0.24);
+                border-radius: 20px;
+                box-shadow:
+                  inset 0 0 16px rgba(0,80,255,0.16),
+                  0 0 12px rgba(0,180,255,0.20);
+                padding: 16px;
+                box-sizing: border-box;
+                overflow: hidden;
+              }
+
+              .battery-main {
+                grid-row: span 2;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                text-align: center;
+              }
+
+              .battery-right {
+                grid-row: span 2;
+              }
+
+              .soc-ring {
+                width: 165px;
+                height: 165px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow:
+                  0 0 28px rgba(0,180,255,0.9),
+                  inset 0 0 18px rgba(0,80,255,0.45);
+              }
+
+              .soc-core {
+                width: 118px;
+                height: 118px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(8,16,34,0.98), rgba(4,8,20,1));
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+              }
+
+              .soc-value {
+                color: #dffbff;
+                font-size: 42px;
+                font-weight: 900;
+                text-shadow: 0 0 16px rgba(0,180,255,1);
+              }
+
+              .soc-label,
+              .section-sub {
+                color: #9eeeff;
+                font-size: 14px;
+              }
+
+              .status-list {
+                color: #dffbff;
+                line-height: 1.75;
+                font-size: 15px;
+              }
+
+              .battery-section {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 7px;
+                min-height: 165px;
+              }
+
+              .section-title {
+                font-size: 18px;
+                font-weight: 900;
+                color: #9eeeff;
+                text-shadow: 0 0 9px rgba(0,180,255,0.85);
+              }
+
+              .blue-value,
+              .orange-value,
+              .green-value {
+                font-size: 31px;
+                font-weight: 900;
+                line-height: 1.1;
+              }
+
+              .blue-value {
+                color: #00bfff;
+                text-shadow: 0 0 14px rgba(0,180,255,1);
+              }
+
+              .orange-value {
+                color: #ff9b35;
+                text-shadow: 0 0 14px rgba(255,120,0,1);
+              }
+
+              .green-value {
+                color: #66ff7a;
+                text-shadow: 0 0 14px rgba(102,255,122,0.95);
+              }
+
+              .small {
+                font-size: 23px;
+              }
+
+              .divider {
+                width: 82%;
+                height: 1px;
+                background: rgba(158,238,255,0.25);
+                margin: 6px auto;
+              }
+
+              .battery-graphic {
+                width: 95px;
+                height: 145px;
+                position: relative;
+                margin: 0 auto 12px;
+                filter: drop-shadow(0 0 16px rgba(102,255,122,0.70));
+              }
+
+              .battery-graphic.charging {
+                animation: chargePulse 1.2s infinite alternate;
+              }
+
+              .battery-graphic.discharging {
+                animation: dischargePulse 1.2s infinite alternate;
+              }
+
+              .battery-top {
+                width: 34px;
+                height: 10px;
+                border: 2px solid rgba(158,238,255,0.75);
+                border-bottom: none;
+                border-radius: 8px 8px 0 0;
+                margin: 0 auto;
+              }
+
+              .battery-body {
+                width: 82px;
+                height: 130px;
+                margin: 0 auto;
+                border: 2px solid rgba(158,238,255,0.85);
+                border-radius: 14px;
+                position: relative;
+                overflow: hidden;
+                background: rgba(4,8,20,0.92);
+                box-shadow:
+                  inset 0 0 20px rgba(0,180,255,0.32),
+                  0 0 12px rgba(0,180,255,0.65);
+              }
+
+              .battery-fill {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: linear-gradient(0deg, rgba(0,255,80,0.78), rgba(102,255,122,0.30));
+                box-shadow: 0 0 18px rgba(102,255,122,0.8);
+              }
+
+              .battery-bolt {
+                position: absolute;
+                top: 36px;
+                left: 0;
+                right: 0;
+                text-align: center;
+                color: #66ff7a;
+                font-size: 46px;
+                text-shadow: 0 0 14px rgba(102,255,122,1);
+              }
+
+              .payback-bar {
+                width: 92%;
+                height: 14px;
+                border-radius: 20px;
+                overflow: hidden;
+                background: rgba(158,238,255,0.16);
+                border: 1px solid rgba(158,238,255,0.35);
+                box-shadow: inset 0 0 10px rgba(0,80,255,0.35);
+                margin: 4px auto;
+              }
+
+              .payback-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #00bfff, #66ff7a, #ff9b35);
+                box-shadow: 0 0 12px rgba(102,255,122,0.8);
+              }
+
+              b, strong {
+                color: #9eeeff;
+                text-shadow: 0 0 8px rgba(0,180,255,0.55);
+              }
+
+              @keyframes chargePulse {
+                from {
+                  filter: drop-shadow(0 0 10px rgba(102,255,122,0.5));
+                  transform: scale(1);
+                }
+                to {
+                  filter: drop-shadow(0 0 24px rgba(102,255,122,1));
+                  transform: scale(1.04);
+                }
+              }
+
+              @keyframes dischargePulse {
+                from {
+                  filter: drop-shadow(0 0 10px rgba(255,155,53,0.5));
+                  transform: scale(1);
+                }
+                to {
+                  filter: drop-shadow(0 0 24px rgba(255,155,53,1));
+                  transform: scale(1.04);
+                }
+              }
+
+              @media (max-width: 1200px) {
+                .battery-dashboard {
+                  grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+
+                .battery-main,
+                .battery-right {
+                  grid-row: span 1;
+                }
+              }
+
+              @media (max-width: 750px) {
+                .battery-dashboard {
+                  grid-template-columns: 1fr;
+                }
+
+                .battery-main,
+                .battery-right {
+                  grid-row: span 1;
+                }
+
+                .blue-value,
+                .orange-value,
+                .green-value {
+                  font-size: 28px;
+                }
+              }
