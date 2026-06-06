@@ -119,13 +119,14 @@ Verbeteringen, bugfixes en ideeën zijn altijd welkom.
 
 Maak gerust een Issue of Pull Request aan.
 
- ## ⭐ Ondersteun het project
-
-Vind je dit dashboard handig? Geef deze repository dan een ster ⭐ op GitHub.
-
 ## 📜 Licentie
-☕ Buy me a coffee:
-www.paypal.me/deadbyrobin
+## ☕ Ondersteun het project
 
+Vind je dit dashboard handig?
+
+☕ Buy me a coffee:
+https://paypal.me/deadbyrobin
+
+⭐ Of geef deze repository een Star op GitHub.
 MIT License
 
