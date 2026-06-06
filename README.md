@@ -1,68 +1,109 @@
-🔋 HYXi Ultra Dashboard
+# 🔋 HYXi Ultra Dashboard
 
 Community Home Assistant dashboard voor HYXi batterijsystemen met live monitoring, prestatie-analyse en terugverdienberekeningen.
 
-✨ Functies
-📊 Live laad- en ontlaadvermogen
-🔋 Batterijpercentage (SOC)
-⚡ Totaal geladen en ontladen energie
-📈 Rendementberekening
-🔄 Cycliberekening
-💰 Winstindicatie
-⏳ Terugverdientijdberekening
-🎨 Neon HYXi dashboard design
-📱 Werkt op desktop, tablet en mobiel
-📸 Screenshot
+## ✨ Functies
 
-<img width="1644" height="320" alt="image" src="https://github.com/user-attachments/assets/5bd0c035-31cc-4fb2-bd95-9cda2c09c698" />
+- 📊 Live laad- en ontlaadvermogen
+- 🔋 Batterijpercentage (SOC)
+- ⚡ Totaal geladen en ontladen energie
+- 📈 Rendementberekening
+- 🔄 Cycliberekening
+- 💰 Winstindicatie
+- ⏳ Terugverdientijdberekening
+- 🎨 Neon HYXi dashboard design
+- 📱 Werkt op desktop, tablet en mobiel
 
+---
 
+## 📸 Screenshot
 
+![HYXi Dashboard](https://github.com/Robinbraakman/HYXi-Ultra-Dashboard/blob/main/screenshot.png)
 
+---
 
+## 📋 Vereisten
 
+### Home Assistant
 
+- Home Assistant 2024.6 of nieuwer
+- Werkende HYXi integratie
 
-
-
-📋 Vereisten
-Home Assistant
-Home Assistant 2024.6 of nieuwer
-Werkende HYXi integratie
-HACS
+### HACS
 
 Installeer via HACS:
 
-Button Card
-Card Mod (aanbevolen)
-🔧 Benodigde sensoren
+- Button Card
+- Card Mod (aanbevolen)
 
-Vervang 123456789 door jouw eigen HYXi serienummer.
+---
 
+## 🔧 Benodigde sensoren
+
+Vervang `123456789` door jouw eigen HYXi serienummer.
+
+```yaml
 sensor.hyxi_123456789_batsoc
 sensor.hyxi_123456789_totalechg
 sensor.hyxi_123456789_totaledchg
 sensor.hyxi_123456789_bat_charging
 sensor.hyxi_123456789_bat_discharging
+```
 
+---
 
-⚙️ Standaard instellingen
+## ⚙️ Standaard instellingen
+
+```text
 Capaciteit: 6.0 kWh
 Investering: €1870
 Stroomprijs: €0.1357 per kWh
 Injectietarief: €0.0151 per kWh
+```
 
 Pas deze waarden aan naar je eigen situatie.
 
-🚀 Installatie
-Download de YAML.
-Open Home Assistant.
-Ga naar Dashboard → Bewerken → Ruwe configuratie-editor.
-Plak de YAML.
-Sla op.
-Vervang de voorbeeldsensoren door je eigen sensoren.
-Pas indien gewenst de standaard instellingen aan.
-⚠️ Disclaimer
+---
+
+## 🚀 Installatie
+
+1. Download de YAML uit deze repository.
+2. Open Home Assistant.
+3. Ga naar Dashboard → Bewerken → Ruwe configuratie-editor.
+4. Plak de YAML.
+5. Sla op.
+6. Vervang de voorbeeldsensoren door je eigen HYXi sensoren.
+7. Pas eventueel de standaardwaarden aan.
+
+---
+
+## 📂 Inbegrepen bestand
+
+```text
+HYXi_Ultra_Dashboard_Community_123456789.yaml
+```
+
+Dit bestand bevat voorbeeldsensoren zodat iedereen het dashboard eenvoudig kan aanpassen aan zijn eigen HYXi installatie.
+
+---
+
+## 🎨 Dashboard kenmerken
+
+- Neon cyber-stijl ontwerp
+- Dynamische batterijring
+- Live laad- en ontlaadstatus
+- Rendementsscore (A+ t/m C)
+- Cycliberekening
+- Verliesanalyse
+- Winstindicatie
+- Terugverdientijd berekening
+- Mobiel geoptimaliseerd
+- Tablet geoptimaliseerd
+- Desktop ondersteuning
+
+---
+
+## ⚠️ Disclaimer
 
 Dit dashboard is gemaakt door de Home Assistant community en is niet officieel verbonden aan HYXi.
 
@@ -70,6 +111,8 @@ Gebruik op eigen risico.
 
 Controleer altijd zelf de berekeningen voor rendement, winst en terugverdientijd.
 
-📜 Licentie
+---
+
+## 📜 Licentie
 
 MIT License
