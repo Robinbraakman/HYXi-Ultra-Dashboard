@@ -125,7 +125,7 @@ Vind je dit dashboard handig? Geef deze repository dan een ster ⭐ op GitHub.
 
 ## 📜 Licentie
 ☕ Buy me a coffee:
-paypal.me/deadbyrobin
+www.paypal.me/deadbyrobin
 
 MIT License
 
