@@ -121,6 +121,7 @@ Verbeteringen, bugfixes en ideeën zijn altijd welkom.
 Maak gerust een Issue of Pull Request aan.
 
 ## 📜 Licentie
+MIT License
 ## ☕ Ondersteun het project
 
 Vind je dit dashboard handig?
