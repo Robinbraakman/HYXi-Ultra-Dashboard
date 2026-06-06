@@ -124,5 +124,8 @@ Maak gerust een Issue of Pull Request aan.
 Vind je dit dashboard handig? Geef deze repository dan een ster ⭐ op GitHub.
 
 ## 📜 Licentie
+☕ Buy me a coffee:
+https://buymeacoffee.com/Robinbraakman
 
 MIT License
+
