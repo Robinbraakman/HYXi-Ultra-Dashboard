@@ -16,6 +16,15 @@ Community Home Assistant dashboard voor HYXi batterijsystemen met live monitorin
 
 <img width="1644" height="320" alt="image" src="https://github.com/user-attachments/assets/5bd0c035-31cc-4fb2-bd95-9cda2c09c698" />
 
+
+
+
+
+
+
+
+
+
 📋 Vereisten
 Home Assistant
 Home Assistant 2024.6 of nieuwer
@@ -35,6 +44,8 @@ sensor.hyxi_123456789_totalechg
 sensor.hyxi_123456789_totaledchg
 sensor.hyxi_123456789_bat_charging
 sensor.hyxi_123456789_bat_discharging
+
+
 ⚙️ Standaard instellingen
 Capaciteit: 6.0 kWh
 Investering: €1870
