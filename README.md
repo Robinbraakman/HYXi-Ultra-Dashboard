@@ -18,7 +18,8 @@ Community Home Assistant dashboard voor HYXi batterijsystemen met live monitorin
 
 ## 📸 Screenshot
 
-![HYXi Dashboard](https://github.com/Robinbraakman/HYXi-Ultra-Dashboard/blob/main/screenshot.png)
+<img width="1663" height="358" alt="image" src="https://github.com/user-attachments/assets/cf60272c-9901-4a26-a5a8-fad45269a15d" />
+
 
 ---
 
