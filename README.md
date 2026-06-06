@@ -36,8 +36,6 @@ Installeer via HACS:
 
 - Button Card
 
-Optioneel:
-
 - Card Mod
 
 ---
@@ -52,3 +50,28 @@ sensor.hyxi_123456789_totalechg
 sensor.hyxi_123456789_totaledchg
 sensor.hyxi_123456789_bat_charging
 sensor.hyxi_123456789_bat_discharging
+
+
+Standaard instellingen:
+
+Capaciteit: 6.0 kWh
+Investering: €1870
+Stroomprijs: €0.1357
+Injectietarief: €0.0151
+Pas deze waarden aan naar je eigen situatie!
+
+Installatie
+Download de YAML.
+Open Home Assistant.
+Ga naar Dashboard → Bewerken → Ruwe configuratie-editor.
+Plak de YAML.
+Sla op.
+Vervang de voorbeeldsensoren door je eigen sensore
+vervang eventueel  de standaar instellingen 
+
+Disclaimer
+
+Dit dashboard is gemaakt door de Home Assistant community en is niet officieel verbonden aan HYXi.
+
+Gebruik op eigen risico.
+Controleer altijd zelf de berekeningen voor rendement, winst en terugverdientijd.
