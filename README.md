@@ -57,7 +57,7 @@ sensor.hyxi_123456789_bat_discharging
 ## ⚙️ Standaard instellingen
 
 ```text
-Capaciteit: 6.0 kWh
+Capaciteit: 9.2 kWh
 Investering: €1870
 Stroomprijs: €0.1357 per kWh
 Injectietarief: €0.0151 per kWh
