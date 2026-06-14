@@ -1,3 +1,5 @@
+<img width="1634" height="309" alt="image" src="https://github.com/user-attachments/assets/6cebe4d4-317d-4428-b49d-44632513c485" />
+
 # 🔋 HYXi Ultra Dashboard
 
 Community Home Assistant dashboard voor HYXi batterijsystemen met live monitoring, prestatie-analyse en terugverdienberekeningen.
