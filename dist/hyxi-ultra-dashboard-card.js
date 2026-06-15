@@ -5,11 +5,8 @@ class HyxiUltraDashboardCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config) {
-      throw new Error("Invalid configuration");
-    }
-
     this.config = {
+      serial: "123456789",
       language: "en",
       capacity: 9.2,
       investment: 2222.99,
@@ -33,7 +30,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
   }
 
   getEntities() {
-    const serial = this.config.serial;
+    const serial = this.config.serial || "123456789";
 
     return {
       soc: this.config.entities?.soc || `sensor.hyxi_${serial}_batsoc`,
@@ -92,7 +89,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
     const loss = Math.max(0, charged - discharged);
     const efficiency = charged > 0 ? Math.min((discharged / charged) * 100, 100) : 0;
-    const cycles = discharged / capacity;
+    const cycles = capacity > 0 ? discharged / capacity : 0;
 
     const electricityPrice = Number(this.config.electricity_price || 0);
     const feedInPrice = Number(this.config.feed_in_price || 0);
@@ -130,12 +127,21 @@ class HyxiUltraDashboardCard extends HTMLElement {
     else if (efficiency >= 75) score = "A";
     else if (efficiency >= 65) score = "B";
 
-    const fill = Math.max(8, Math.min(soc, 100));
-    const socDeg = Math.max(0, Math.min(soc, 100)) * 3.6;
+    const socSafe = Math.max(0, Math.min(soc, 100));
+    const socDeg = socSafe * 3.6;
 
     this.shadowRoot.innerHTML = `
       <style>
+        :host {
+          display: block;
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+
         ha-card {
+          width: 100%;
+          box-sizing: border-box;
           border-radius: 26px;
           padding: 22px;
           background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
@@ -161,7 +167,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
         .dashboard {
           display: grid;
-          grid-template-columns: 1.75fr 1fr 1fr 1fr 1fr 1.1fr 1.05fr;
+          grid-template-columns: minmax(330px, 1.8fr) 1fr 1fr 1fr 1fr 1.1fr 1.05fr;
           gap: 16px;
           align-items: stretch;
           width: 100%;
@@ -169,18 +175,20 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
         .main {
           display: grid;
-          grid-template-columns: 160px 1fr;
-          gap: 18px;
+          grid-template-columns: 180px 1fr;
+          gap: 22px;
           align-items: center;
         }
 
         .hyxi {
           position: relative;
-          width: 138px;
-          height: 218px;
+          width: 172px;
+          height: 238px;
           margin: 0 auto;
-          transform: perspective(420px) rotateY(-10deg);
-          filter: drop-shadow(0 0 18px rgba(0,180,255,0.55));
+          transform: perspective(480px) rotateY(-9deg);
+          filter:
+            drop-shadow(0 0 18px rgba(0,180,255,0.58))
+            drop-shadow(0 0 24px rgba(102,255,122,0.18));
         }
 
         .hyxi.charging {
@@ -191,22 +199,65 @@ class HyxiUltraDashboardCard extends HTMLElement {
           animation: haloDischargePulse 1.8s ease-in-out infinite;
         }
 
+        .halo-shadow {
+          position: absolute;
+          left: 16px;
+          right: 14px;
+          bottom: -8px;
+          height: 20px;
+          border-radius: 50%;
+          background: radial-gradient(ellipse at center, rgba(0,180,255,0.35), transparent 70%);
+          filter: blur(5px);
+          z-index: 0;
+        }
+
+        .side {
+          position: absolute;
+          right: 9px;
+          top: 13px;
+          width: 44px;
+          height: 215px;
+          border-radius: 0 10px 16px 0;
+          background:
+            linear-gradient(90deg, rgba(28,34,36,1), rgba(73,82,84,0.98) 44%, rgba(21,25,27,1));
+          border: 1px solid rgba(130,150,150,0.28);
+          box-shadow:
+            inset -10px 0 16px rgba(0,0,0,0.55),
+            inset 4px 0 8px rgba(255,255,255,0.05),
+            0 0 12px rgba(0,180,255,0.22);
+          z-index: 1;
+        }
+
+        .side::before {
+          content: "";
+          position: absolute;
+          top: 18px;
+          right: 7px;
+          width: 10px;
+          height: 176px;
+          border-radius: 8px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(0,0,0,0.18));
+          opacity: .55;
+        }
+
         .front {
           position: absolute;
           left: 0;
           top: 0;
-          width: 105px;
-          height: 218px;
-          border-radius: 4px 4px 10px 10px;
-          background: linear-gradient(180deg, rgba(75,80,82,0.98), rgba(48,53,55,0.99), rgba(39,43,45,1));
-          border: 1px solid rgba(140,150,150,0.35);
+          width: 138px;
+          height: 238px;
+          border-radius: 7px 7px 16px 16px;
+          background:
+            linear-gradient(90deg, rgba(255,255,255,0.08), transparent 18%, transparent 78%, rgba(0,0,0,0.33)),
+            linear-gradient(180deg, rgba(73,82,84,0.98), rgba(41,49,52,0.99) 38%, rgba(24,29,31,1));
+          border: 1px solid rgba(170,190,190,0.30);
           box-shadow:
-            0 0 18px rgba(0,180,255,0.55),
-            inset 8px 0 16px rgba(255,255,255,0.08),
-            inset -10px 0 14px rgba(0,0,0,0.34),
-            0 0 24px rgba(102,255,122,0.18);
+            0 0 19px rgba(0,180,255,0.48),
+            inset 10px 0 16px rgba(255,255,255,0.06),
+            inset -14px 0 18px rgba(0,0,0,0.46),
+            0 0 26px rgba(102,255,122,0.14);
           overflow: hidden;
-          z-index: 4;
+          z-index: 3;
         }
 
         .front::before {
@@ -214,119 +265,138 @@ class HyxiUltraDashboardCard extends HTMLElement {
           position: absolute;
           left: 0;
           right: 0;
-          top: 38px;
-          height: 50px;
+          top: 50px;
+          height: 64px;
           background: repeating-linear-gradient(
             180deg,
-            rgba(9,12,13,0.72) 0px,
-            rgba(9,12,13,0.72) 2px,
-            rgba(95,105,105,0.28) 3px,
-            rgba(95,105,105,0.28) 5px
+            rgba(6,8,9,0.86) 0px,
+            rgba(6,8,9,0.86) 3px,
+            rgba(95,110,110,0.25) 5px,
+            rgba(95,110,110,0.25) 8px
           );
-          box-shadow: inset 0 0 12px rgba(0,0,0,0.48);
+          box-shadow:
+            inset 0 0 16px rgba(0,0,0,0.65),
+            0 1px 0 rgba(255,255,255,0.04);
         }
 
-        .side {
+        .front::after {
+          content: "";
           position: absolute;
-          right: 6px;
-          top: 8px;
-          width: 38px;
-          height: 202px;
-          border-radius: 0 6px 10px 0;
-          background: linear-gradient(90deg, rgba(65,70,72,1), rgba(92,98,100,0.96), rgba(42,46,48,1));
-          border: 1px solid rgba(130,140,140,0.25);
-          box-shadow: inset -8px 0 14px rgba(0,0,0,0.38), 0 0 12px rgba(0,180,255,0.20);
-          z-index: 2;
+          inset: 0;
+          background:
+            linear-gradient(120deg, rgba(255,255,255,0.14), transparent 16%, transparent 80%, rgba(255,255,255,0.04)),
+            radial-gradient(circle at 28% 18%, rgba(102,255,122,0.12), transparent 20%);
+          pointer-events: none;
+          z-index: 12;
         }
 
         .logo-ring {
           position: absolute;
-          left: 11px;
-          top: 8px;
-          width: 34px;
-          height: 34px;
+          left: 16px;
+          top: 15px;
+          width: 46px;
+          height: 46px;
           border-radius: 50%;
           background:
-            radial-gradient(circle at center, rgba(38,50,52,1) 0 47%, transparent 48%),
+            radial-gradient(circle at center, rgba(32,42,44,1) 0 44%, transparent 45%),
             conic-gradient(from -90deg, #66ff7a 0 ${socDeg}deg, rgba(0,229,255,0.18) ${socDeg}deg 360deg);
-          box-shadow: 0 0 10px rgba(0,229,255,0.75), inset 0 0 8px rgba(102,255,122,0.25);
-          z-index: 8;
+          box-shadow:
+            0 0 14px rgba(102,255,122,0.85),
+            0 0 18px rgba(0,229,255,0.45),
+            inset 0 0 8px rgba(0,0,0,0.5);
+          z-index: 10;
         }
 
         .logo {
           position: absolute;
-          inset: 4px;
+          inset: 7px;
+          border-radius: 50%;
+          background: rgba(24,34,36,0.95);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #dffbff;
-          font-size: 8px;
+          font-size: 10px;
           font-weight: 900;
           text-shadow: 0 0 6px rgba(0,200,255,0.9);
         }
 
         .grille {
           position: absolute;
-          left: 8px;
-          right: 8px;
-          top: 43px;
-          height: 39px;
+          left: 10px;
+          right: 10px;
+          top: 58px;
+          height: 48px;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          z-index: 6;
-          opacity: .72;
+          z-index: 7;
+          opacity: .86;
         }
 
         .grille span {
-          height: 1px;
-          background: rgba(8,10,12,0.76);
-          box-shadow: 0 1px 0 rgba(110,120,120,0.18);
+          height: 2px;
+          border-radius: 2px;
+          background: rgba(5,7,8,0.86);
+          box-shadow:
+            0 1px 0 rgba(130,145,145,0.18),
+            0 0 3px rgba(0,0,0,0.5);
         }
 
-        .door {
+        .screen {
           position: absolute;
-          left: 13px;
-          right: 13px;
-          bottom: 39px;
-          height: 72px;
-          border-radius: 6px;
-          background: linear-gradient(180deg, rgba(42,47,49,0.95), rgba(31,35,37,0.98));
-          border: 1px solid rgba(120,130,130,0.14);
-          box-shadow: inset 0 0 12px rgba(0,0,0,0.35), 0 0 10px rgba(0,180,255,0.18);
-          z-index: 7;
+          left: 25px;
+          right: 25px;
+          bottom: 62px;
+          height: 84px;
+          border-radius: 9px;
+          background:
+            linear-gradient(180deg, rgba(5,9,14,0.98), rgba(7,13,18,0.99));
+          border: 1px solid rgba(150,230,255,0.18);
+          box-shadow:
+            inset 0 0 16px rgba(0,0,0,0.72),
+            0 0 12px rgba(0,180,255,0.18);
+          z-index: 9;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
         }
 
         .soc {
-          position: absolute;
-          top: 8px;
-          width: 100%;
-          text-align: center;
-          color: #dffbff;
-          font-size: 28px;
-          font-weight: 900;
+          color: #e8fbff;
+          font-size: 31px;
+          line-height: 1;
+          font-weight: 950;
           text-shadow: 0 0 14px rgba(0,180,255,0.95);
         }
 
         .soc-label {
-          position: absolute;
-          top: 39px;
-          width: 100%;
-          text-align: center;
-          color: #9eeeff;
-          font-size: 9px;
-          font-weight: 900;
+          color: #dffbff;
+          font-size: 12px;
+          font-weight: 850;
+          margin-top: 4px;
         }
 
         .mode-label {
-          position: absolute;
-          top: 51px;
-          width: 100%;
-          text-align: center;
           color: ${pulseClass === "discharging" ? "#ff9b35" : "#66ff7a"};
-          font-size: 8px;
-          font-weight: 900;
+          font-size: 11px;
+          font-weight: 950;
           text-shadow: 0 0 8px ${pulseClass === "discharging" ? "rgba(255,155,53,0.8)" : "rgba(102,255,122,0.8)"};
+          margin-top: 3px;
+        }
+
+        .halo-label {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 24px;
+          color: #b7c5c9;
+          text-align: center;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: .9px;
+          z-index: 10;
         }
 
         .status {
@@ -422,7 +492,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
           bottom: 0;
           left: 0;
           width: 100%;
-          height: ${fill}%;
+          height: ${Math.max(8, socSafe)}%;
           background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(102,255,122,0.88), rgba(0,255,80,0.64));
           box-shadow: 0 0 18px rgba(102,255,122,0.8);
           animation: energyFlow 2.4s ease-in-out infinite;
@@ -477,6 +547,40 @@ class HyxiUltraDashboardCard extends HTMLElement {
           }
         }
 
+        @media (max-width: 700px) {
+          ha-card {
+            padding: 18px;
+          }
+
+          .title {
+            font-size: 18px;
+            text-align: center;
+          }
+
+          .dashboard {
+            grid-template-columns: 1fr;
+          }
+
+          .main {
+            grid-template-columns: 1fr;
+            grid-column: span 1;
+            text-align: center;
+          }
+
+          .status {
+            text-align: center;
+          }
+
+          .section {
+            border-left: none;
+            border-top: 1px solid rgba(158,238,255,0.28);
+          }
+
+          .blue, .orange, .green {
+            font-size: 22px;
+          }
+        }
+
         @keyframes ultraGlow {
           0%,100% {
             box-shadow:
@@ -493,13 +597,29 @@ class HyxiUltraDashboardCard extends HTMLElement {
         }
 
         @keyframes haloChargePulse {
-          0%,100% { filter: drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
-          50% { filter: drop-shadow(0 0 24px rgba(0,180,255,0.85)) drop-shadow(0 0 22px rgba(102,255,122,0.55)); }
+          0%,100% {
+            filter:
+              drop-shadow(0 0 18px rgba(0,180,255,0.58))
+              drop-shadow(0 0 24px rgba(102,255,122,0.18));
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 26px rgba(0,180,255,0.9))
+              drop-shadow(0 0 28px rgba(102,255,122,0.55));
+          }
         }
 
         @keyframes haloDischargePulse {
-          0%,100% { filter: drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
-          50% { filter: drop-shadow(0 0 24px rgba(0,180,255,0.85)) drop-shadow(0 0 22px rgba(255,155,53,0.55)); }
+          0%,100% {
+            filter:
+              drop-shadow(0 0 18px rgba(0,180,255,0.58))
+              drop-shadow(0 0 24px rgba(255,155,53,0.16));
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 26px rgba(0,180,255,0.9))
+              drop-shadow(0 0 28px rgba(255,155,53,0.48));
+          }
         }
 
         @keyframes energyFlow {
@@ -514,23 +634,25 @@ class HyxiUltraDashboardCard extends HTMLElement {
         <div class="dashboard">
           <div class="main">
             <div class="hyxi ${pulseClass}">
+              <div class="halo-shadow"></div>
+              <div class="side"></div>
               <div class="front">
                 <div class="logo-ring">
                   <div class="logo">HYXi</div>
                 </div>
 
                 <div class="grille">
-                  ${Array.from({ length: 18 }).map(() => "<span></span>").join("")}
+                  ${Array.from({ length: 13 }).map(() => "<span></span>").join("")}
                 </div>
 
-                <div class="door">
+                <div class="screen">
                   <div class="soc">${soc.toFixed(0)}%</div>
                   <div class="soc-label">SOC</div>
                   <div class="mode-label">${mode.toUpperCase()}</div>
                 </div>
-              </div>
 
-              <div class="side"></div>
+                <div class="halo-label">HALO</div>
+              </div>
             </div>
 
             <div class="status">
@@ -603,6 +725,15 @@ class HyxiUltraDashboardCard extends HTMLElement {
     `;
   }
 
+  getGridOptions() {
+    return {
+      columns: 12,
+      rows: 4,
+      min_columns: 4,
+      min_rows: 3,
+    };
+  }
+
   getCardSize() {
     return 6;
   }
@@ -620,11 +751,13 @@ class HyxiUltraDashboardCard extends HTMLElement {
   }
 }
 
-customElements.define("hyxi-ultra-dashboard-card", HyxiUltraDashboardCard);
+if (!customElements.get("hyxi-ultra-dashboard-card")) {
+  customElements.define("hyxi-ultra-dashboard-card", HyxiUltraDashboardCard);
+}
 
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "hyxi-ultra-dashboard-card",
   name: "HYXi Ultra Dashboard Card",
-  description: "A neon dashboard card for HYXi battery systems.",
+  description: "A neon dashboard card for HYXi HALO battery systems.",
 });
