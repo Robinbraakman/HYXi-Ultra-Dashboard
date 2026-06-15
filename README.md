@@ -30,7 +30,10 @@ Community Home Assistant dashboard for HYXi battery systems with live monitoring
 ### Home Assistant
 
 * Home Assistant 2024.6 or newer
-* Working HYXi integration
+* HYXi Cloud integration by Veldkornet:
+  https://github.com/Veldkornet/ha-hyxi-cloud
+
+This dashboard uses sensor entities provided by the HYXi Cloud integration.
 
 ### HACS
 
@@ -38,6 +41,7 @@ Install via HACS:
 
 * Button Card
 * Card Mod recommended
+
 
 ---
 
