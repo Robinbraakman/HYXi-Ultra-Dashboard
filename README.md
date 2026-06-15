@@ -71,7 +71,7 @@ Pas deze waarden aan naar je eigen situatie.
 
 1. Download de YAML uit deze repository.
 2. Open Home Assistant.
-3. Ga naar Dashboard → Bewerken → Ruwe configuratie-editor.
+3. Dashboard → Kaart toevoegen → Handmatig → plak de losse YAML
 4. Plak de YAML.
 5. Sla op.
 6. Vervang de voorbeeldsensoren door je eigen HYXi sensoren.
