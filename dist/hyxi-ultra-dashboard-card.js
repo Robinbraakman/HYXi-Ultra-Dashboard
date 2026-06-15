@@ -135,7 +135,15 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
+        :host {
+          display: block;
+          width: 100%;
+          min-width: 100%;
+        }
+
         ha-card {
+          width: 100%;
+          box-sizing: border-box;
           border-radius: 26px;
           padding: 22px;
           background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
@@ -161,7 +169,11 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
         .dashboard {
           display: grid;
-          grid-template-columns: 1.75fr 1fr 1fr 1fr 1fr 1.1fr 1.05fr;
+          grid-template-columns:
+            minmax(320px, 1.75fr)
+            repeat(4, minmax(130px, 1fr))
+            minmax(145px, 1.1fr)
+            minmax(130px, 1.05fr);
           gap: 16px;
           align-items: stretch;
           width: 100%;
@@ -477,6 +489,26 @@ class HyxiUltraDashboardCard extends HTMLElement {
           }
         }
 
+        @media (max-width: 700px) {
+          .dashboard {
+            grid-template-columns: 1fr;
+          }
+
+          .main {
+            grid-template-columns: 1fr;
+            grid-column: span 1;
+          }
+
+          .status {
+            text-align: center;
+          }
+
+          .section {
+            border-left: none;
+            border-top: 1px solid rgba(158,238,255,0.28);
+          }
+        }
+
         @keyframes ultraGlow {
           0%,100% {
             box-shadow:
@@ -601,6 +633,15 @@ class HyxiUltraDashboardCard extends HTMLElement {
         </div>
       </ha-card>
     `;
+  }
+
+  getGridOptions() {
+    return {
+      columns: 12,
+      rows: 4,
+      min_columns: 12,
+      min_rows: 4,
+    };
   }
 
   getCardSize() {
