@@ -2,15 +2,39 @@ class HyxiUltraDashboardCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this._layout = "compact";
+    this.setAttribute("layout", "compact");
+  }
+
+  connectedCallback() {
+    this._resizeObserver = new ResizeObserver((entries) => {
+      const width = entries?.[0]?.contentRect?.width || this.offsetWidth || 0;
+
+      let layout = "compact";
+
+      if (width >= 1350) {
+        layout = "wide";
+      } else if (width >= 760) {
+        layout = "medium";
+      }
+
+      if (this._layout !== layout) {
+        this._layout = layout;
+        this.setAttribute("layout", layout);
+      }
+    });
+
+    this._resizeObserver.observe(this);
+  }
+
+  disconnectedCallback() {
+    this._resizeObserver?.disconnect();
   }
 
   setConfig(config) {
-    if (!config) {
-      throw new Error("Invalid configuration");
-    }
-
     this.config = {
-      language: "en",
+      serial: "123456789",
+      language: null,
       capacity: 9.2,
       investment: 2222.99,
       electricity_price: 0.22568,
@@ -33,7 +57,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
   }
 
   getEntities() {
-    const serial = this.config.serial;
+    const serial = this.config.serial || "123456789";
 
     return {
       soc: this.config.entities?.soc || `sensor.hyxi_${serial}_batsoc`,
@@ -45,10 +69,16 @@ class HyxiUltraDashboardCard extends HTMLElement {
   }
 
   getLabels() {
-    const nl = this.config.language === "nl";
+    const hassLanguage =
+      this._hass?.locale?.language ||
+      this._hass?.language ||
+      "en";
+
+    const language = this.config.language || hassLanguage;
+    const nl = String(language).toLowerCase().startsWith("nl");
 
     return {
-      title: nl ? "🔋 HYXI BATTERIJ ULTRA DASHBOARD" : "🔋 HYXI BATTERY ULTRA DASHBOARD",
+      title: nl ? "HYXI BATTERIJ ULTRA DASHBOARD" : "HYXI BATTERY ULTRA DASHBOARD",
       mode: nl ? "Modus" : "Mode",
       standby: nl ? "Stand-by" : "Standby",
       charging: nl ? "Laden" : "Charging",
@@ -57,22 +87,28 @@ class HyxiUltraDashboardCard extends HTMLElement {
       max: "Max",
       efficiency: nl ? "Rendement" : "Efficiency",
       score: "Score",
-      total: nl ? "💎 TOTAAL" : "💎 TOTAL",
-      charged: nl ? "⚡ Geladen" : "⚡ Charged",
-      discharged: nl ? "🔌 Ontladen" : "🔌 Discharged",
-      live: "⚡ LIVE",
-      performance: nl ? "📊 PRESTATIE" : "📊 PERFORMANCE",
+      total: nl ? "TOTAAL" : "TOTAL",
+      charged: nl ? "Geladen" : "Charged",
+      discharged: nl ? "Ontladen" : "Discharged",
+      live: "LIVE",
+      performance: nl ? "PRESTATIE" : "PERFORMANCE",
       cycles: nl ? "Cycli" : "Cycles",
       loss: nl ? "Verlies" : "Loss",
-      savings: nl ? "💰 WINST" : "💰 SAVINGS",
+      savings: nl ? "WINST" : "SAVINGS",
       totalSavings: nl ? "Winst totaal" : "Total savings",
-      currentSavings: nl ? "Winst nu/uur indicatie" : "Current savings/hour estimate",
-      payback: nl ? "⏳ TERUGVERDIEN" : "⏳ PAYBACK",
+      currentSavings: nl ? "Winst nu/uur" : "Current savings/hour",
+      payback: nl ? "TERUGVERDIEN" : "PAYBACK",
       paidBack: nl ? "Terugverdiend" : "Paid back",
       of: nl ? "van" : "of",
       years: nl ? "jaar" : "years",
-      currentlyInBattery: nl ? "Actueel in accu" : "Currently in battery",
+      batteryNow: nl ? "Actueel in accu" : "Currently in battery",
+      noSensors: nl ? "Geen HYXi-sensoren gevonden" : "No HYXi sensors found",
     };
+  }
+
+  formatNumber(value, decimals = 1) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number.toFixed(decimals) : "0";
   }
 
   render() {
@@ -92,7 +128,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
     const loss = Math.max(0, charged - discharged);
     const efficiency = charged > 0 ? Math.min((discharged / charged) * 100, 100) : 0;
-    const cycles = discharged / capacity;
+    const cycles = capacity > 0 ? discharged / capacity : 0;
 
     const electricityPrice = Number(this.config.electricity_price || 0);
     const feedInPrice = Number(this.config.feed_in_price || 0);
@@ -130,505 +166,693 @@ class HyxiUltraDashboardCard extends HTMLElement {
     else if (efficiency >= 75) score = "A";
     else if (efficiency >= 65) score = "B";
 
-    const fill = Math.max(8, Math.min(soc, 100));
-    const socDeg = Math.max(0, Math.min(soc, 100)) * 3.6;
+    const socSafe = Math.max(0, Math.min(soc, 100));
+    const socDeg = socSafe * 3.6;
+    const fill = Math.max(8, socSafe);
 
     this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: block;
           width: 100%;
-          min-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
         }
 
         ha-card {
           width: 100%;
           box-sizing: border-box;
-          border-radius: 26px;
-          padding: 22px;
-          background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
-          border: 1px solid rgba(0,200,255,0.75);
-          border-left: 4px solid rgba(102,255,122,0.95);
-          box-shadow:
-            0 0 16px rgba(0,180,255,0.75),
-            inset 0 0 22px rgba(0,80,255,0.32),
-            0 0 28px rgba(102,255,122,0.24);
-          color: #9eeeff;
+          border-radius: 28px;
+          padding: 0;
           overflow: hidden;
-          animation: ultraGlow 4s ease-in-out infinite;
+          color: #dffbff;
+          background:
+            radial-gradient(circle at 18% 8%, rgba(0, 200, 255, 0.16), transparent 32%),
+            radial-gradient(circle at 92% 88%, rgba(0, 255, 130, 0.09), transparent 30%),
+            linear-gradient(145deg, rgba(2, 8, 20, 0.99), rgba(4, 14, 32, 0.97));
+          border: 1px solid rgba(0, 210, 255, 0.90);
+          box-shadow:
+            0 0 18px rgba(0, 200, 255, 0.72),
+            0 0 42px rgba(0, 140, 255, 0.26),
+            inset 0 0 26px rgba(0, 80, 255, 0.24);
+        }
+
+        .wrap {
+          position: relative;
+          width: 100%;
+          box-sizing: border-box;
+          padding: 24px;
+        }
+
+        .wrap::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background:
+            linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.05), transparent),
+            repeating-linear-gradient(
+              90deg,
+              transparent 0,
+              transparent 86px,
+              rgba(0, 200, 255, 0.022) 88px
+            );
+          opacity: .55;
         }
 
         .title {
-          color: #dffbff;
-          font-size: 24px;
-          font-weight: 900;
-          text-transform: uppercase;
-          text-shadow: 0 0 10px rgba(0,180,255,0.9);
-          margin-bottom: 14px;
-        }
-
-        .dashboard {
-          display: grid;
-          grid-template-columns:
-            minmax(320px, 1.75fr)
-            repeat(4, minmax(130px, 1fr))
-            minmax(145px, 1.1fr)
-            minmax(130px, 1.05fr);
-          gap: 16px;
-          align-items: stretch;
-          width: 100%;
-        }
-
-        .main {
-          display: grid;
-          grid-template-columns: 160px 1fr;
-          gap: 18px;
-          align-items: center;
-        }
-
-        .hyxi {
           position: relative;
-          width: 138px;
-          height: 218px;
-          margin: 0 auto;
-          transform: perspective(420px) rotateY(-10deg);
-          filter: drop-shadow(0 0 18px rgba(0,180,255,0.55));
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 22px;
+          color: #e9fbff;
+          font-weight: 950;
+          letter-spacing: .4px;
+          text-transform: uppercase;
+          font-size: clamp(21px, 2vw, 34px);
+          line-height: 1.15;
+          text-shadow:
+            0 0 10px rgba(0, 200, 255, 0.95),
+            0 0 26px rgba(0, 130, 255, 0.72);
         }
 
-        .hyxi.charging {
+        .title-battery {
+          width: 18px;
+          height: 32px;
+          border-radius: 5px;
+          border: 2px solid rgba(190, 255, 255, 0.92);
+          background: linear-gradient(180deg, #caffd6, #24ff68);
+          box-shadow: 0 0 13px rgba(102, 255, 122, 0.82);
+          position: relative;
+          flex: 0 0 auto;
+        }
+
+        .title-battery::before {
+          content: "";
+          position: absolute;
+          top: -7px;
+          left: 5px;
+          width: 7px;
+          height: 5px;
+          border-radius: 3px 3px 0 0;
+          background: rgba(190, 255, 255, 0.92);
+        }
+
+        .content {
+          position: relative;
+          z-index: 2;
+          display: grid;
+          gap: 18px;
+          min-width: 0;
+        }
+
+        .hero {
+          min-width: 0;
+          display: grid;
+          align-items: center;
+          gap: 20px;
+          padding: 18px;
+          border-radius: 22px;
+          background: rgba(0, 18, 38, 0.34);
+          border: 1px solid rgba(0, 200, 255, 0.23);
+          box-shadow:
+            inset 0 0 22px rgba(0, 90, 160, 0.16),
+            0 0 18px rgba(0, 180, 255, 0.12);
+        }
+
+        .halo-device {
+          position: relative;
+          width: 156px;
+          height: 238px;
+          margin: 0 auto;
+          transform: perspective(450px) rotateY(-8deg);
+          filter:
+            drop-shadow(0 0 16px rgba(0, 190, 255, 0.45))
+            drop-shadow(0 0 22px rgba(0, 255, 120, 0.14));
+        }
+
+        .halo-device.charging {
           animation: haloChargePulse 1.8s ease-in-out infinite;
         }
 
-        .hyxi.discharging {
+        .halo-device.discharging {
           animation: haloDischargePulse 1.8s ease-in-out infinite;
         }
 
-        .front {
+        .halo-side {
+          position: absolute;
+          right: 5px;
+          top: 10px;
+          width: 40px;
+          height: 220px;
+          border-radius: 4px 14px 16px 4px;
+          background: linear-gradient(90deg, #20272b, #3c4448 45%, #151a1d);
+          border: 1px solid rgba(140, 170, 170, 0.22);
+          box-shadow:
+            inset -10px 0 14px rgba(0, 0, 0, 0.52),
+            0 0 14px rgba(0, 180, 255, 0.22);
+          z-index: 1;
+        }
+
+        .halo-front {
           position: absolute;
           left: 0;
           top: 0;
-          width: 105px;
-          height: 218px;
-          border-radius: 4px 4px 10px 10px;
-          background: linear-gradient(180deg, rgba(75,80,82,0.98), rgba(48,53,55,0.99), rgba(39,43,45,1));
-          border: 1px solid rgba(140,150,150,0.35);
+          width: 130px;
+          height: 238px;
+          border-radius: 7px 7px 16px 16px;
+          background:
+            linear-gradient(180deg, rgba(68, 78, 80, 0.98), rgba(35, 42, 45, 0.99) 34%, rgba(24, 28, 31, 1));
+          border: 1px solid rgba(170, 190, 190, 0.28);
           box-shadow:
-            0 0 18px rgba(0,180,255,0.55),
-            inset 8px 0 16px rgba(255,255,255,0.08),
-            inset -10px 0 14px rgba(0,0,0,0.34),
-            0 0 24px rgba(102,255,122,0.18);
+            inset 10px 0 15px rgba(255, 255, 255, 0.05),
+            inset -12px 0 15px rgba(0, 0, 0, 0.42),
+            0 0 22px rgba(0, 200, 255, 0.34);
           overflow: hidden;
-          z-index: 4;
+          z-index: 3;
         }
 
-        .front::before {
+        .halo-front::before {
           content: "";
           position: absolute;
           left: 0;
           right: 0;
-          top: 38px;
-          height: 50px;
+          top: 52px;
+          height: 56px;
           background: repeating-linear-gradient(
             180deg,
-            rgba(9,12,13,0.72) 0px,
-            rgba(9,12,13,0.72) 2px,
-            rgba(95,105,105,0.28) 3px,
-            rgba(95,105,105,0.28) 5px
+            rgba(7, 9, 10, .82) 0,
+            rgba(7, 9, 10, .82) 3px,
+            rgba(105, 120, 120, .25) 5px,
+            rgba(105, 120, 120, .25) 8px
           );
-          box-shadow: inset 0 0 12px rgba(0,0,0,0.48);
-        }
-
-        .side {
-          position: absolute;
-          right: 6px;
-          top: 8px;
-          width: 38px;
-          height: 202px;
-          border-radius: 0 6px 10px 0;
-          background: linear-gradient(90deg, rgba(65,70,72,1), rgba(92,98,100,0.96), rgba(42,46,48,1));
-          border: 1px solid rgba(130,140,140,0.25);
-          box-shadow: inset -8px 0 14px rgba(0,0,0,0.38), 0 0 12px rgba(0,180,255,0.20);
-          z-index: 2;
+          box-shadow: inset 0 0 16px rgba(0, 0, 0, .62);
         }
 
         .logo-ring {
           position: absolute;
-          left: 11px;
-          top: 8px;
-          width: 34px;
-          height: 34px;
+          left: 16px;
+          top: 15px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           background:
-            radial-gradient(circle at center, rgba(38,50,52,1) 0 47%, transparent 48%),
-            conic-gradient(from -90deg, #66ff7a 0 ${socDeg}deg, rgba(0,229,255,0.18) ${socDeg}deg 360deg);
-          box-shadow: 0 0 10px rgba(0,229,255,0.75), inset 0 0 8px rgba(102,255,122,0.25);
+            radial-gradient(circle at center, rgba(30, 42, 44, 1) 0 45%, transparent 46%),
+            conic-gradient(from -90deg, #68ff7e 0 ${socDeg}deg, rgba(0, 229, 255, 0.16) ${socDeg}deg 360deg);
+          box-shadow:
+            0 0 18px rgba(102, 255, 122, 0.82),
+            0 0 22px rgba(0, 220, 255, 0.42),
+            inset 0 0 10px rgba(0, 0, 0, 0.5);
           z-index: 8;
         }
 
-        .logo {
+        .logo-ring span {
           position: absolute;
-          inset: 4px;
+          inset: 7px;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
+          background: rgba(25, 34, 36, 0.92);
           color: #dffbff;
-          font-size: 8px;
-          font-weight: 900;
-          text-shadow: 0 0 6px rgba(0,200,255,0.9);
+          font-size: 10px;
+          font-weight: 950;
+          text-shadow: 0 0 8px rgba(0, 200, 255, 0.9);
         }
 
-        .grille {
+        .device-screen {
           position: absolute;
-          left: 8px;
-          right: 8px;
-          top: 43px;
-          height: 39px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          z-index: 6;
-          opacity: .72;
-        }
-
-        .grille span {
-          height: 1px;
-          background: rgba(8,10,12,0.76);
-          box-shadow: 0 1px 0 rgba(110,120,120,0.18);
-        }
-
-        .door {
-          position: absolute;
-          left: 13px;
-          right: 13px;
-          bottom: 39px;
-          height: 72px;
-          border-radius: 6px;
-          background: linear-gradient(180deg, rgba(42,47,49,0.95), rgba(31,35,37,0.98));
-          border: 1px solid rgba(120,130,130,0.14);
-          box-shadow: inset 0 0 12px rgba(0,0,0,0.35), 0 0 10px rgba(0,180,255,0.18);
+          left: 23px;
+          right: 23px;
+          bottom: 60px;
+          height: 84px;
+          border-radius: 9px;
+          background: linear-gradient(180deg, rgba(5, 9, 14, 0.96), rgba(8, 15, 22, 0.98));
+          border: 1px solid rgba(150, 230, 255, 0.18);
+          box-shadow:
+            inset 0 0 16px rgba(0, 0, 0, 0.64),
+            0 0 14px rgba(0, 180, 255, 0.14);
           z-index: 7;
-        }
-
-        .soc {
-          position: absolute;
-          top: 8px;
-          width: 100%;
-          text-align: center;
-          color: #dffbff;
-          font-size: 28px;
-          font-weight: 900;
-          text-shadow: 0 0 14px rgba(0,180,255,0.95);
-        }
-
-        .soc-label {
-          position: absolute;
-          top: 39px;
-          width: 100%;
-          text-align: center;
-          color: #9eeeff;
-          font-size: 9px;
-          font-weight: 900;
-        }
-
-        .mode-label {
-          position: absolute;
-          top: 51px;
-          width: 100%;
-          text-align: center;
-          color: ${pulseClass === "discharging" ? "#ff9b35" : "#66ff7a"};
-          font-size: 8px;
-          font-weight: 900;
-          text-shadow: 0 0 8px ${pulseClass === "discharging" ? "rgba(255,155,53,0.8)" : "rgba(102,255,122,0.8)"};
-        }
-
-        .status {
-          color: #dffbff;
-          line-height: 1.85;
-          text-align: left;
-          font-size: 14px;
-        }
-
-        .section {
-          border-left: 1px solid rgba(158,238,255,0.38);
-          padding: 8px 14px;
-          text-align: center;
           display: flex;
           flex-direction: column;
+          align-items: center;
           justify-content: center;
-          gap: 6px;
         }
 
-        .section-title {
-          font-weight: 900;
-          color: #9eeeff;
-          text-shadow: 0 0 8px rgba(0,180,255,0.75);
+        .soc-big {
+          font-size: 29px;
+          line-height: 1;
+          font-weight: 950;
+          color: #e8fbff;
+          text-shadow: 0 0 12px rgba(0, 190, 255, 0.9);
         }
 
-        .section-sub {
-          color: #9eeeff;
-          font-size: 14px;
+        .soc-text {
+          font-size: 11px;
+          font-weight: 800;
+          color: #dffbff;
+          margin-top: 3px;
         }
 
-        .blue, .orange, .green {
-          font-size: 27px;
-          font-weight: 900;
+        .mode-text {
+          font-size: 11px;
+          font-weight: 950;
+          color: ${pulseClass === "discharging" ? "#ff9135" : "#66ff7a"};
+          text-shadow: 0 0 8px currentColor;
+          margin-top: 3px;
         }
 
-        .blue {
-          color: #00bfff;
-          text-shadow: 0 0 12px rgba(0,180,255,0.9);
-        }
-
-        .orange {
-          color: #ff9b35;
-          text-shadow: 0 0 12px rgba(255,120,0,0.9);
-        }
-
-        .green {
-          color: #66ff7a;
-          text-shadow: 0 0 12px rgba(102,255,122,0.8);
-        }
-
-        .small {
-          font-size: 21px;
-        }
-
-        .divider {
-          width: 82%;
-          height: 1px;
-          background: rgba(158,238,255,0.25);
-          margin: 5px auto;
-        }
-
-        .battery-graphic {
-          width: 88px;
-          height: 134px;
-          position: relative;
-          margin: 0 auto 8px;
-          filter: drop-shadow(0 0 16px rgba(102,255,122,0.65));
-        }
-
-        .battery-top {
-          width: 32px;
-          height: 10px;
-          border: 2px solid rgba(158,238,255,0.75);
-          border-bottom: none;
-          border-radius: 8px 8px 0 0;
-          margin: 0 auto;
-        }
-
-        .battery-body {
-          width: 78px;
-          height: 118px;
-          margin: 0 auto;
-          border: 2px solid rgba(158,238,255,0.85);
-          border-radius: 14px;
-          position: relative;
-          overflow: hidden;
-          background: rgba(4,8,20,0.92);
-          box-shadow: inset 0 0 20px rgba(0,180,255,0.32), 0 0 12px rgba(0,180,255,0.65);
-        }
-
-        .battery-fill {
+        .halo-label {
           position: absolute;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          height: ${fill}%;
-          background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(102,255,122,0.88), rgba(0,255,80,0.64));
-          box-shadow: 0 0 18px rgba(102,255,122,0.8);
-          animation: energyFlow 2.4s ease-in-out infinite;
-        }
-
-        .bolt {
-          position: absolute;
-          top: 32px;
+          bottom: 16px;
           left: 0;
           right: 0;
           text-align: center;
-          color: ${pulseClass === "discharging" ? "#ff9b35" : "#66ff7a"};
-          font-size: 44px;
-          text-shadow: 0 0 14px currentColor;
+          color: #b7c5c9;
+          font-size: 14px;
+          letter-spacing: .8px;
+          z-index: 9;
         }
 
-        .payback-bar {
-          width: 92%;
-          height: 14px;
+        .status {
+          min-width: 0;
+          color: #e8fbff;
+          font-size: clamp(13px, .85vw, 17px);
+          line-height: 1.75;
+        }
+
+        .status-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 4px 0;
+          border-bottom: 1px solid rgba(120, 235, 255, 0.13);
+          min-width: 0;
+        }
+
+        .status-row:last-child {
+          border-bottom: none;
+        }
+
+        .status-label {
+          color: #e8fbff;
+          white-space: nowrap;
+        }
+
+        .status-value {
+          color: #00c8ff;
+          font-weight: 950;
+          text-align: right;
+          white-space: nowrap;
+          text-shadow: 0 0 8px rgba(0, 190, 255, 0.9);
+        }
+
+        .metrics {
+          display: grid;
+          gap: 14px;
+          min-width: 0;
+        }
+
+        .tile {
+          min-width: 0;
+          box-sizing: border-box;
           border-radius: 20px;
+          padding: 18px;
+          background: linear-gradient(145deg, rgba(0, 15, 35, 0.60), rgba(0, 8, 20, 0.48));
+          border: 1px solid rgba(0, 200, 255, 0.22);
+          box-shadow:
+            inset 0 0 20px rgba(0, 90, 180, 0.16),
+            0 0 18px rgba(0, 180, 255, 0.10);
+          text-align: center;
           overflow: hidden;
-          background: rgba(158,238,255,0.16);
-          border: 1px solid rgba(158,238,255,0.35);
-          box-shadow: inset 0 0 10px rgba(0,80,255,0.35);
-          margin: 4px auto;
+        }
+
+        .tile-title {
+          color: #86efff;
+          font-weight: 950;
+          font-size: clamp(14px, .9vw, 19px);
+          text-transform: uppercase;
+          margin-bottom: 14px;
+          text-shadow: 0 0 10px rgba(0, 200, 255, 0.75);
+          white-space: nowrap;
+        }
+
+        .tile-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          align-items: stretch;
+          min-width: 0;
+        }
+
+        .tile-line {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+        }
+
+        .tile-line + .tile-line {
+          border-left: 1px solid rgba(120, 235, 255, 0.24);
+        }
+
+        .sub {
+          color: #d8fbff;
+          font-size: clamp(12px, .72vw, 16px);
+          white-space: nowrap;
+        }
+
+        .value {
+          font-size: clamp(22px, 1.55vw, 34px);
+          font-weight: 950;
+          line-height: 1.1;
+          white-space: nowrap;
+        }
+
+        .value.blue {
+          color: #00bfff;
+          text-shadow: 0 0 14px rgba(0, 180, 255, 0.95);
+        }
+
+        .value.orange {
+          color: #ff8f2f;
+          text-shadow: 0 0 14px rgba(255, 120, 20, 0.95);
+        }
+
+        .value.green {
+          color: #62ff70;
+          text-shadow: 0 0 14px rgba(80, 255, 100, 0.9);
+        }
+
+        .payback-progress {
+          width: 100%;
+          height: 13px;
+          border-radius: 999px;
+          border: 1px solid rgba(85, 210, 255, .85);
+          background: rgba(0, 20, 40, .74);
+          overflow: hidden;
+          box-shadow:
+            inset 0 0 10px rgba(0, 120, 255, .4),
+            0 0 10px rgba(0, 190, 255, .18);
+          margin: 7px 0;
         }
 
         .payback-fill {
           height: 100%;
           width: ${paybackPercent}%;
-          background: linear-gradient(90deg,#00bfff,#66ff7a,#ff9b35);
-          box-shadow: 0 0 12px rgba(102,255,122,0.8);
+          background: linear-gradient(90deg, #62ff70, #00c8ff);
+          box-shadow: 0 0 12px rgba(80, 255, 120, .85);
         }
 
-        b {
-          color: #9eeeff;
-          text-shadow: 0 0 8px rgba(0,180,255,0.55);
+        .battery-tile {
+          display: grid;
+          align-items: center;
+          gap: 16px;
         }
 
-        @media (max-width: 1300px) {
-          .dashboard {
-            grid-template-columns: 1fr 1fr;
-          }
-
-          .main {
-            grid-column: span 2;
-          }
-
-          .section {
-            border-left: none;
-            border-top: 1px solid rgba(158,238,255,0.28);
-          }
+        .battery-icon {
+          width: 60px;
+          height: 104px;
+          border-radius: 17px;
+          border: 2px solid rgba(145, 255, 255, 0.92);
+          position: relative;
+          background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(102, 255, 122, 0.88) ${100 - fill}%, rgba(0, 185, 80, 0.95));
+          box-shadow:
+            0 0 17px rgba(102, 255, 122, 0.72),
+            0 0 25px rgba(0, 200, 255, 0.45),
+            inset 0 0 16px rgba(0, 60, 40, 0.45);
+          margin: 6px auto;
         }
 
-        @media (max-width: 700px) {
-          .dashboard {
-            grid-template-columns: 1fr;
-          }
-
-          .main {
-            grid-template-columns: 1fr;
-            grid-column: span 1;
-          }
-
-          .status {
-            text-align: center;
-          }
-
-          .section {
-            border-left: none;
-            border-top: 1px solid rgba(158,238,255,0.28);
-          }
+        .battery-icon::before {
+          content: "";
+          position: absolute;
+          top: -12px;
+          left: 19px;
+          width: 20px;
+          height: 12px;
+          border: 2px solid rgba(145, 255, 255, 0.92);
+          border-bottom: none;
+          border-radius: 8px 8px 0 0;
         }
 
-        @keyframes ultraGlow {
-          0%,100% {
-            box-shadow:
-              0 0 16px rgba(0,180,255,0.75),
-              inset 0 0 22px rgba(0,80,255,0.32),
-              0 0 28px rgba(102,255,122,0.24);
-          }
-          50% {
-            box-shadow:
-              0 0 30px rgba(0,180,255,1),
-              inset 0 0 30px rgba(0,80,255,0.55),
-              0 0 42px rgba(102,255,122,0.45);
-          }
+        .battery-icon::after {
+          content: "⚡";
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #ff8f2f;
+          font-size: 40px;
+          text-shadow: 0 0 12px rgba(255, 120, 20, .95);
+        }
+
+        :host([layout="wide"]) .content {
+          grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+        }
+
+        :host([layout="wide"]) .hero {
+          grid-template-columns: 160px minmax(0, 1fr);
+        }
+
+        :host([layout="wide"]) .metrics {
+          grid-template-columns: repeat(6, minmax(130px, 1fr));
+        }
+
+        :host([layout="wide"]) .tile {
+          min-height: 228px;
+        }
+
+        :host([layout="wide"]) .tile-grid {
+          grid-template-columns: 1fr;
+        }
+
+        :host([layout="wide"]) .tile-line + .tile-line {
+          border-left: none;
+          border-top: 1px solid rgba(120, 235, 255, 0.24);
+          padding-top: 12px;
+        }
+
+        :host([layout="wide"]) .battery-tile {
+          grid-template-columns: 1fr;
+        }
+
+        :host([layout="medium"]) .content {
+          grid-template-columns: 1fr;
+        }
+
+        :host([layout="medium"]) .hero {
+          grid-template-columns: 190px minmax(0, 1fr);
+        }
+
+        :host([layout="medium"]) .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        :host([layout="medium"]) .battery-tile {
+          grid-template-columns: 86px 1fr;
+        }
+
+        :host([layout="compact"]) .wrap {
+          padding: 18px;
+        }
+
+        :host([layout="compact"]) .title {
+          font-size: 21px;
+          margin-bottom: 18px;
+        }
+
+        :host([layout="compact"]) .content,
+        :host([layout="compact"]) .hero,
+        :host([layout="compact"]) .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        :host([layout="compact"]) .hero {
+          text-align: center;
+        }
+
+        :host([layout="compact"]) .status {
+          width: 100%;
+        }
+
+        :host([layout="compact"]) .tile-grid {
+          grid-template-columns: 1fr;
+        }
+
+        :host([layout="compact"]) .tile-line + .tile-line {
+          border-left: none;
+          border-top: 1px solid rgba(120, 235, 255, 0.24);
+          padding-top: 12px;
+        }
+
+        :host([layout="compact"]) .battery-tile {
+          grid-template-columns: 1fr;
         }
 
         @keyframes haloChargePulse {
-          0%,100% { filter: drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
-          50% { filter: drop-shadow(0 0 24px rgba(0,180,255,0.85)) drop-shadow(0 0 22px rgba(102,255,122,0.55)); }
+          0%, 100% {
+            filter:
+              drop-shadow(0 0 16px rgba(0, 190, 255, 0.45))
+              drop-shadow(0 0 22px rgba(0, 255, 120, 0.14));
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 24px rgba(0, 190, 255, 0.80))
+              drop-shadow(0 0 28px rgba(102, 255, 122, 0.52));
+          }
         }
 
         @keyframes haloDischargePulse {
-          0%,100% { filter: drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
-          50% { filter: drop-shadow(0 0 24px rgba(0,180,255,0.85)) drop-shadow(0 0 22px rgba(255,155,53,0.55)); }
-        }
-
-        @keyframes energyFlow {
-          0%,100% { filter: brightness(1); }
-          50% { filter: brightness(1.38); }
+          0%, 100% {
+            filter:
+              drop-shadow(0 0 16px rgba(0, 190, 255, 0.45))
+              drop-shadow(0 0 22px rgba(255, 145, 53, 0.12));
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 24px rgba(0, 190, 255, 0.80))
+              drop-shadow(0 0 28px rgba(255, 145, 53, 0.45));
+          }
         }
       </style>
 
       <ha-card>
-        <div class="title">${labels.title}</div>
+        <div class="wrap">
+          <div class="title">
+            <div class="title-battery"></div>
+            <div>${labels.title}</div>
+          </div>
 
-        <div class="dashboard">
-          <div class="main">
-            <div class="hyxi ${pulseClass}">
-              <div class="front">
-                <div class="logo-ring">
-                  <div class="logo">HYXi</div>
-                </div>
-
-                <div class="grille">
-                  ${Array.from({ length: 18 }).map(() => "<span></span>").join("")}
-                </div>
-
-                <div class="door">
-                  <div class="soc">${soc.toFixed(0)}%</div>
-                  <div class="soc-label">SOC</div>
-                  <div class="mode-label">${mode.toUpperCase()}</div>
+          <div class="content">
+            <div class="hero">
+              <div class="halo-device ${pulseClass}">
+                <div class="halo-side"></div>
+                <div class="halo-front">
+                  <div class="logo-ring"><span>HYXi</span></div>
+                  <div class="device-screen">
+                    <div class="soc-big">${this.formatNumber(soc, 0)}%</div>
+                    <div class="soc-text">SOC</div>
+                    <div class="mode-text">${mode.toUpperCase()}</div>
+                  </div>
+                  <div class="halo-label">HALO</div>
                 </div>
               </div>
 
-              <div class="side"></div>
-            </div>
-
-            <div class="status">
-              ${modeIcon} ${labels.mode}: <b>${mode}</b><br>
-              🟢 ${labels.inBattery}: <b>${currentKwh.toFixed(2)} kWh</b><br>
-              🔋 ${labels.max}: <b>${capacity.toFixed(1)} kWh</b><br>
-              📈 ${labels.efficiency}: <b>${efficiency.toFixed(1)}%</b><br>
-              🏆 ${labels.score}: <b>${score}</b>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">${labels.total}</div>
-            <div class="section-sub">${labels.charged}</div>
-            <div class="blue">${charged.toFixed(1)} kWh</div>
-            <div class="divider"></div>
-            <div class="section-sub">${labels.discharged}</div>
-            <div class="orange">${discharged.toFixed(1)} kWh</div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">${labels.live}</div>
-            <div class="section-sub">${labels.charging}</div>
-            <div class="blue">${chargingPower.toFixed(0)} W</div>
-            <div class="divider"></div>
-            <div class="section-sub">${labels.discharging}</div>
-            <div class="orange">${dischargingPower.toFixed(0)} W</div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">${labels.performance}</div>
-            <div class="section-sub">${labels.cycles}</div>
-            <div class="blue">${cycles.toFixed(1)}</div>
-            <div class="divider"></div>
-            <div class="section-sub">${labels.loss}</div>
-            <div class="orange">${loss.toFixed(1)} kWh</div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">${labels.savings}</div>
-            <div class="section-sub">${labels.totalSavings}</div>
-            <div class="green">€ ${totalSavings.toFixed(0)}</div>
-            <div class="divider"></div>
-            <div class="section-sub">${labels.currentSavings}</div>
-            <div class="green small">€ ${currentSavings.toFixed(2)}</div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">${labels.payback}</div>
-            <div class="section-sub">${labels.paidBack}</div>
-            <div class="orange">€ ${paidBack.toFixed(0)}</div>
-            <div class="payback-bar"><div class="payback-fill"></div></div>
-            <div class="section-sub">${paybackPercent.toFixed(1)}% ${labels.of} € ${investment}</div>
-            <div class="orange small">${paybackYears.toFixed(1)} ${labels.years}</div>
-          </div>
-
-          <div class="section">
-            <div class="battery-graphic">
-              <div class="battery-top"></div>
-              <div class="battery-body">
-                <div class="battery-fill"></div>
-                <div class="bolt">⚡</div>
+              <div class="status">
+                <div class="status-row">
+                  <span class="status-label">${modeIcon} ${labels.mode}</span>
+                  <span class="status-value">${mode}</span>
+                </div>
+                <div class="status-row">
+                  <span class="status-label">🟢 ${labels.inBattery}</span>
+                  <span class="status-value">${this.formatNumber(currentKwh, 2)} kWh</span>
+                </div>
+                <div class="status-row">
+                  <span class="status-label">🔋 ${labels.max}</span>
+                  <span class="status-value">${this.formatNumber(capacity, 1)} kWh</span>
+                </div>
+                <div class="status-row">
+                  <span class="status-label">📈 ${labels.efficiency}</span>
+                  <span class="status-value">${this.formatNumber(efficiency, 1)}%</span>
+                </div>
+                <div class="status-row">
+                  <span class="status-label">🏆 ${labels.score}</span>
+                  <span class="status-value">${score}</span>
+                </div>
               </div>
             </div>
-            <div class="section-sub">${labels.currentlyInBattery}</div>
-            <div class="blue">${currentKwh.toFixed(2)} kWh</div>
+
+            <div class="metrics">
+              <div class="tile">
+                <div class="tile-title">💎 ${labels.total}</div>
+                <div class="tile-grid">
+                  <div class="tile-line">
+                    <div class="sub">⚡ ${labels.charged}</div>
+                    <div class="value blue">${this.formatNumber(charged, 1)} kWh</div>
+                  </div>
+                  <div class="tile-line">
+                    <div class="sub">🔌 ${labels.discharged}</div>
+                    <div class="value orange">${this.formatNumber(discharged, 1)} kWh</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile">
+                <div class="tile-title">⚡ ${labels.live}</div>
+                <div class="tile-grid">
+                  <div class="tile-line">
+                    <div class="sub">${labels.charging}</div>
+                    <div class="value blue">${this.formatNumber(chargingPower, 0)} W</div>
+                  </div>
+                  <div class="tile-line">
+                    <div class="sub">${labels.discharging}</div>
+                    <div class="value orange">${this.formatNumber(dischargingPower, 0)} W</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile">
+                <div class="tile-title">📊 ${labels.performance}</div>
+                <div class="tile-grid">
+                  <div class="tile-line">
+                    <div class="sub">${labels.cycles}</div>
+                    <div class="value blue">${this.formatNumber(cycles, 1)}</div>
+                  </div>
+                  <div class="tile-line">
+                    <div class="sub">${labels.loss}</div>
+                    <div class="value orange">${this.formatNumber(loss, 1)} kWh</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile">
+                <div class="tile-title">💰 ${labels.savings}</div>
+                <div class="tile-grid">
+                  <div class="tile-line">
+                    <div class="sub">${labels.totalSavings}</div>
+                    <div class="value green">€ ${this.formatNumber(totalSavings, 0)}</div>
+                  </div>
+                  <div class="tile-line">
+                    <div class="sub">${labels.currentSavings}</div>
+                    <div class="value green">€ ${this.formatNumber(currentSavings, 2)}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile">
+                <div class="tile-title">⏳ ${labels.payback}</div>
+                <div class="tile-grid">
+                  <div class="tile-line">
+                    <div class="sub">${labels.paidBack}</div>
+                    <div class="value orange">€ ${this.formatNumber(paidBack, 0)}</div>
+                  </div>
+                  <div class="tile-line">
+                    <div class="payback-progress">
+                      <div class="payback-fill"></div>
+                    </div>
+                    <div class="sub">${this.formatNumber(paybackPercent, 1)}% ${labels.of} € ${this.formatNumber(investment, 2)}</div>
+                    <div class="value orange">${this.formatNumber(paybackYears, 1)} ${labels.years}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile battery-tile">
+                <div class="battery-icon"></div>
+                <div>
+                  <div class="tile-title">🔋 ACCU</div>
+                  <div class="sub">${labels.batteryNow}</div>
+                  <div class="value blue">${this.formatNumber(currentKwh, 2)} kWh</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </ha-card>
@@ -639,8 +863,8 @@ class HyxiUltraDashboardCard extends HTMLElement {
     return {
       columns: 12,
       rows: 4,
-      min_columns: 12,
-      min_rows: 4,
+      min_columns: 4,
+      min_rows: 3,
     };
   }
 
@@ -667,5 +891,6 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "hyxi-ultra-dashboard-card",
   name: "HYXi Ultra Dashboard Card",
-  description: "A neon dashboard card for HYXi battery systems.",
+  description: "Adaptive neon dashboard card for HYXi HALO battery systems.",
+  preview: true,
 });
