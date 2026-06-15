@@ -1,769 +1,775 @@
-type: custom:button-card
-name: 🔋 HYXI BATTERIJ ULTRA DASHBOARD
-view_layout:
-  grid-column: span 3
-show_icon: false
-show_state: false
-show_label: false
-triggers_update:
-  - sensor.hyxi_123456789_batsoc
-  - sensor.hyxi_123456789_totalechg
-  - sensor.hyxi_123456789_totaledchg
-  - sensor.hyxi_123456789_bat_charging
-  - sensor.hyxi_123456789_bat_discharging
-styles:
-  card:
-    - border-radius: 26px
-    - padding: 22px
-    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
-    - border: 1px solid rgba(0,200,255,0.75)
-    - border-left: 4px solid rgba(102,255,122,0.95)
-    - box-shadow: >
-        0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0
-        28px rgba(102,255,122,0.24)
-    - animation: ultraGlow 4s ease-in-out infinite
-    - color: "#9eeeff"
-    - min-height: 310px
-    - overflow: hidden
-  name:
-    - justify-self: start
-    - color: "#dffbff"
-    - font-size: 24px
-    - font-weight: 900
-    - text-transform: uppercase
-    - text-shadow: 0 0 10px rgba(0,180,255,0.9)
-    - margin-bottom: 14px
-  grid:
-    - grid-template-areas: "\"n\" \"battery\""
-    - grid-template-columns: 1fr
-    - grid-template-rows: auto 1fr
-custom_fields:
-  battery: |
-    [[[
-      const get = (id) => parseFloat(states[id]?.state || 0);
+title: HYXi Batterij Dashboard
+views:
+  - title: HYXi Batterij
+    path: hyxi-batterij
+    icon: mdi:battery
+    panel: true
+    cards:
+      - type: custom:button-card
+        name: 🔋 HYXI BATTERIJ ULTRA DASHBOARD
+        show_icon: false
+        show_state: false
+        show_label: false
+        triggers_update:
+          - sensor.hyxi_123456789_batsoc
+          - sensor.hyxi_123456789_totalechg
+          - sensor.hyxi_123456789_totaledchg
+          - sensor.hyxi_123456789_bat_charging
+          - sensor.hyxi_123456789_bat_discharging
+        styles:
+          card:
+            - border-radius: 26px
+            - padding: 22px
+            - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+            - border: 1px solid rgba(0,200,255,0.75)
+            - border-left: 4px solid rgba(102,255,122,0.95)
+            - box-shadow: >
+                0 0 16px rgba(0,180,255,0.75), inset 0 0 22px
+                rgba(0,80,255,0.32), 0 0 28px rgba(102,255,122,0.24)
+            - animation: ultraGlow 4s ease-in-out infinite
+            - color: "#9eeeff"
+            - min-height: 310px
+            - overflow: hidden
+            - width: 100%
+          name:
+            - justify-self: start
+            - color: "#dffbff"
+            - font-size: 24px
+            - font-weight: 900
+            - text-transform: uppercase
+            - text-shadow: 0 0 10px rgba(0,180,255,0.9)
+            - margin-bottom: 14px
+          grid:
+            - grid-template-areas: '"n" "battery"'
+            - grid-template-columns: 1fr
+            - grid-template-rows: auto 1fr
+        custom_fields:
+          battery: |
+            [[[
+              const get = (id) => parseFloat(states[id]?.state || 0);
 
-      const soc = get('sensor.hyxi_123456789_batsoc');
-      const geladen = get('sensor.hyxi_123456789_totalechg');
-      const ontladen = get('sensor.hyxi_123456789_totaledchg');
-      const laadvermogen = get('sensor.hyxi_123456789_bat_charging');
-      const ontlaadvermogen = get('sensor.hyxi_123456789_bat_discharging');
+              const soc = get('sensor.hyxi_123456789_batsoc');
+              const geladen = get('sensor.hyxi_123456789_totalechg');
+              const ontladen = get('sensor.hyxi_123456789_totaledchg');
+              const laadvermogen = get('sensor.hyxi_123456789_bat_charging');
+              const ontlaadvermogen = get('sensor.hyxi_123456789_bat_discharging');
 
-      const capaciteit = 9.2;
-      const actueleKwh = capaciteit * (soc / 100);
+              const capaciteit = 9.2;
+              const actueleKwh = capaciteit * (soc / 100);
 
-      const verlies = geladen - ontladen;
-      const rendement = geladen > 0 ? (ontladen / geladen * 100) : 0;
-      const cycli = ontladen / capaciteit;
+              const verlies = Math.max(0, geladen - ontladen);
+              const rendement = geladen > 0 ? Math.min((ontladen / geladen * 100), 100) : 0;
+              const cycli = ontladen / capaciteit;
 
-      const stroomprijs = 0.22568;
-      const terugleverprijs = 0.10;
-      const voordeel = stroomprijs - terugleverprijs;
+              const stroomprijs = 0.22568;
+              const terugleverprijs = 0.10;
+              const voordeel = stroomprijs - terugleverprijs;
 
-      const winstTotaal = ontladen * voordeel;
-      const winstVandaag = (ontlaadvermogen / 1000) * voordeel;
+              const winstTotaal = ontladen * voordeel;
+              const winstVandaag = (ontlaadvermogen / 1000) * voordeel;
 
-      const investering = 2222.99;
-      const staffelVoordeel = 33.38;
-      const terugverdiend = winstTotaal + staffelVoordeel;
-      const terugPercent = Math.max(0, Math.min((terugverdiend / investering) * 100, 100));
+              const investering = 2222.99;
+              const staffelVoordeel = 33.38;
+              const terugverdiend = winstTotaal + staffelVoordeel;
+              const terugPercent = Math.max(0, Math.min((terugverdiend / investering) * 100, 100));
 
-      const start = new Date('2026-05-01T00:00:00');
-      const dagen = Math.max((new Date() - start) / 86400000, 0);
-      const jaarprognose = dagen > 0 ? (terugverdiend / dagen * 365) : 0;
-      const terugverdientijd = jaarprognose > 0 ? investering / jaarprognose : 0;
+              const start = new Date('2026-05-01T00:00:00');
+              const dagen = Math.max((new Date() - start) / 86400000, 0);
+              const jaarprognose = dagen > 0 ? (terugverdiend / dagen * 365) : 0;
+              const terugverdientijd = jaarprognose > 0 ? investering / jaarprognose : 0;
 
-      let modus = 'Stand-by';
-      let modusIcon = '⏸️';
-      let pulseClass = 'idle';
+              let modus = 'Stand-by';
+              let modusIcon = '⏸️';
+              let pulseClass = 'idle';
 
-      if (laadvermogen > 5) {
-        modus = 'Laden';
-        modusIcon = '⚡';
-        pulseClass = 'charging';
-      } else if (ontlaadvermogen > 5) {
-        modus = 'Ontladen';
-        modusIcon = '🔌';
-        pulseClass = 'discharging';
-      }
+              if (laadvermogen > 5) {
+                modus = 'Laden';
+                modusIcon = '⚡';
+                pulseClass = 'charging';
+              } else if (ontlaadvermogen > 5) {
+                modus = 'Ontladen';
+                modusIcon = '🔌';
+                pulseClass = 'discharging';
+              }
 
-      let score = 'C';
-      if (rendement >= 85) score = 'A+';
-      else if (rendement >= 75) score = 'A';
-      else if (rendement >= 65) score = 'B';
+              let score = 'C';
+              if (rendement >= 85) score = 'A+';
+              else if (rendement >= 75) score = 'A';
+              else if (rendement >= 65) score = 'B';
 
-      const fill = Math.max(8, Math.min(soc, 100));
-      const socDeg = Math.max(0, Math.min(soc, 100)) * 3.6;
-      const startDeg = -90 + socDeg;
+              const fill = Math.max(8, Math.min(soc, 100));
+              const socDeg = Math.max(0, Math.min(soc, 100)) * 3.6;
+              const startDeg = -90 + socDeg;
 
-      return `
-        <div class="battery-dashboard">
+              return `
+                <div class="battery-dashboard">
 
-          <div class="battery-main">
+                  <div class="battery-main">
 
-            <div class="hyxi-halo ${pulseClass}">
-              <div class="halo-front">
-                <div class="halo-logo-ring ${pulseClass}" style="--socDeg:${socDeg}deg; --startDeg:${startDeg}deg;">
-                  <div class="halo-logo">HYXi</div>
+                    <div class="hyxi-halo ${pulseClass}">
+                      <div class="halo-front">
+                        <div class="halo-logo-ring ${pulseClass}" style="--socDeg:${socDeg}deg; --startDeg:${startDeg}deg;">
+                          <div class="halo-logo">HYXi</div>
+                        </div>
+
+                        <div class="halo-top-leds">
+                          <span></span><span></span>
+                        </div>
+
+                        <div class="halo-grille">
+                          ${Array.from({length:18}).map(() => `<span></span>`).join('')}
+                        </div>
+
+                        <div class="halo-main-door">
+                          <div class="halo-soc">${soc.toFixed(0)}%</div>
+                          <div class="halo-label">SOC</div>
+                          <div class="halo-mode">${modus.toUpperCase()}</div>
+                        </div>
+
+                        <div class="halo-feet">
+                          <span></span><span></span>
+                        </div>
+                      </div>
+
+                      <div class="halo-side">
+                        <div class="side-slot slot1"></div>
+                        <div class="side-slot slot2"></div>
+                        <div class="side-slot slot3"></div>
+                        <div class="side-ports"><span></span><span></span><span></span></div>
+                      </div>
+
+                      <div class="flow-arrow left-arrow">❯❯</div>
+                      <div class="flow-arrow right-arrow">❯❯</div>
+                    </div>
+
+                    <div class="status-list">
+                      ${modusIcon} Modus: <b>${modus}</b><br>
+                      🟢 In accu: <b>${actueleKwh.toFixed(2)} kWh</b><br>
+                      🔋 Max: <b>${capaciteit.toFixed(1)} kWh</b><br>
+                      📈 Rendement: <b>${rendement.toFixed(1)}%</b><br>
+                      🏆 Score: <b>${score}</b>
+                    </div>
+                  </div>
+
+                  <div class="battery-section"><div class="section-title">💎 TOTAAL</div><div class="section-sub">⚡ Geladen</div><div class="blue-value">${geladen.toFixed(1)} kWh</div><div class="divider"></div><div class="section-sub">🔌 Ontladen</div><div class="orange-value">${ontladen.toFixed(1)} kWh</div></div>
+                  <div class="battery-section"><div class="section-title">⚡ LIVE</div><div class="section-sub">Laden</div><div class="blue-value">${laadvermogen.toFixed(0)} W</div><div class="divider"></div><div class="section-sub">Ontladen</div><div class="orange-value">${ontlaadvermogen.toFixed(0)} W</div></div>
+                  <div class="battery-section"><div class="section-title">📊 PRESTATIE</div><div class="section-sub">Cycli</div><div class="blue-value">${cycli.toFixed(1)}</div><div class="divider"></div><div class="section-sub">Verlies</div><div class="orange-value">${verlies.toFixed(1)} kWh</div></div>
+                  <div class="battery-section"><div class="section-title">💰 WINST</div><div class="section-sub">Winst totaal</div><div class="green-value">€ ${winstTotaal.toFixed(0)}</div><div class="divider"></div><div class="section-sub">Winst nu/uur indicatie</div><div class="green-value small">€ ${winstVandaag.toFixed(2)}</div></div>
+                  <div class="battery-section"><div class="section-title">⏳ TERUGVERDIEN</div><div class="section-sub">Terugverdiend</div><div class="orange-value">€ ${terugverdiend.toFixed(0)}</div><div class="payback-bar"><div class="payback-fill" style="width:${terugPercent}%"></div></div><div class="section-sub">${terugPercent.toFixed(1)}% van € ${investering}</div><div class="orange-value small">${terugverdientijd.toFixed(1)} jaar</div></div>
+
+                  <div class="battery-section battery-right">
+                    <div class="battery-graphic ${pulseClass}">
+                      <div class="battery-top"></div>
+                      <div class="battery-body">
+                        <div class="battery-fill" style="height:${fill}%"></div>
+                        <div class="battery-bolt">⚡</div>
+                      </div>
+                    </div>
+                    <div class="section-sub">Actueel in accu</div>
+                    <div class="blue-value">${actueleKwh.toFixed(2)} kWh</div>
+                  </div>
+
                 </div>
-
-                <div class="halo-top-leds">
-                  <span></span><span></span>
-                </div>
-
-                <div class="halo-grille">
-                  ${Array.from({length:18}).map(() => `<span></span>`).join('')}
-                </div>
-
-                <div class="halo-main-door">
-                  <div class="halo-soc">${soc.toFixed(0)}%</div>
-                  <div class="halo-label">SOC</div>
-                  <div class="halo-mode">${modus.toUpperCase()}</div>
-                </div>
-
-                <div class="halo-feet">
-                  <span></span><span></span>
-                </div>
-              </div>
-
-              <div class="halo-side">
-                <div class="side-slot slot1"></div>
-                <div class="side-slot slot2"></div>
-                <div class="side-slot slot3"></div>
-                <div class="side-ports"><span></span><span></span><span></span></div>
-              </div>
-
-              <div class="flow-arrow left-arrow">❯❯</div>
-              <div class="flow-arrow right-arrow">❯❯</div>
-            </div>
-
-            <div class="status-list">
-              ${modusIcon} Modus: <b>${modus}</b><br>
-              🟢 In accu: <b>${actueleKwh.toFixed(2)} kWh</b><br>
-              🔋 Max: <b>${capaciteit.toFixed(1)} kWh</b><br>
-              📈 Rendement: <b>${rendement.toFixed(1)}%</b><br>
-              🏆 Score: <b>${score}</b>
-            </div>
-          </div>
-
-          <div class="battery-section"><div class="section-title">💎 TOTAAL</div><div class="section-sub">⚡ Geladen</div><div class="blue-value">${geladen.toFixed(1)} kWh</div><div class="divider"></div><div class="section-sub">🔌 Ontladen</div><div class="orange-value">${ontladen.toFixed(1)} kWh</div></div>
-          <div class="battery-section"><div class="section-title">⚡ LIVE</div><div class="section-sub">Laden</div><div class="blue-value">${laadvermogen.toFixed(0)} W</div><div class="divider"></div><div class="section-sub">Ontladen</div><div class="orange-value">${ontlaadvermogen.toFixed(0)} W</div></div>
-          <div class="battery-section"><div class="section-title">📊 PRESTATIE</div><div class="section-sub">Cycli</div><div class="blue-value">${cycli.toFixed(1)}</div><div class="divider"></div><div class="section-sub">Verlies</div><div class="orange-value">${verlies.toFixed(1)} kWh</div></div>
-          <div class="battery-section"><div class="section-title">💰 WINST</div><div class="section-sub">Winst totaal</div><div class="green-value">€ ${winstTotaal.toFixed(0)}</div><div class="divider"></div><div class="section-sub">Winst nu/uur indicatie</div><div class="green-value small">€ ${winstVandaag.toFixed(2)}</div></div>
-          <div class="battery-section"><div class="section-title">⏳ TERUGVERDIEN</div><div class="section-sub">Terugverdiend</div><div class="orange-value">€ ${terugverdiend.toFixed(0)}</div><div class="payback-bar"><div class="payback-fill" style="width:${terugPercent}%"></div></div><div class="section-sub">${terugPercent.toFixed(1)}% van € ${investering}</div><div class="orange-value small">${terugverdientijd.toFixed(1)} jaar</div></div>
-
-          <div class="battery-section battery-right">
-            <div class="battery-graphic ${pulseClass}">
-              <div class="battery-top"></div>
-              <div class="battery-body">
-                <div class="battery-fill" style="height:${fill}%"></div>
-                <div class="battery-bolt">⚡</div>
-              </div>
-            </div>
-            <div class="section-sub">Actueel in accu</div>
-            <div class="blue-value">${actueleKwh.toFixed(2)} kWh</div>
-          </div>
-
-        </div>
-      `;
-    ]]]
-extra_styles: |
-  .battery-dashboard {
-    display:grid;
-    grid-template-columns:1.75fr 1fr 1fr 1fr 1fr 1.1fr 1.05fr;
-    gap:16px;
-    align-items:stretch;
-    width:100%;
-  }
-
-  .battery-main {
-    display:grid;
-    grid-template-columns:160px 1fr;
-    gap:18px;
-    align-items:center;
-  }
-
-  .hyxi-halo {
-    position:relative;
-    width:138px;
-    height:218px;
-    margin:0 auto;
-    transform:perspective(420px) rotateY(-10deg);
-    filter:drop-shadow(0 0 18px rgba(0,180,255,0.55));
-  }
-
-  .hyxi-halo.charging {
-    animation:haloChargePulse 1.8s ease-in-out infinite;
-  }
-
-  .hyxi-halo.discharging {
-    animation:haloDischargePulse 1.8s ease-in-out infinite;
-  }
-
-  .halo-front {
-    position:absolute;
-    left:0;
-    top:0;
-    width:105px;
-    height:218px;
-    border-radius:4px 4px 10px 10px;
-    background:
-      linear-gradient(180deg, rgba(75,80,82,0.98) 0%, rgba(48,53,55,0.99) 42%, rgba(39,43,45,1) 100%);
-    border:1px solid rgba(140,150,150,0.35);
-    box-shadow:
-      0 0 18px rgba(0,180,255,0.55),
-      inset 8px 0 16px rgba(255,255,255,0.08),
-      inset -10px 0 14px rgba(0,0,0,0.34),
-      0 0 24px rgba(102,255,122,0.18);
-    overflow:hidden;
-    z-index:4;
-  }
-
-  .halo-front::before {
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    top:38px;
-    height:50px;
-    background:
-      repeating-linear-gradient(
-        180deg,
-        rgba(9,12,13,0.72) 0px,
-        rgba(9,12,13,0.72) 2px,
-        rgba(95,105,105,0.28) 3px,
-        rgba(95,105,105,0.28) 5px
-      );
-    border-top:1px solid rgba(0,0,0,0.35);
-    border-bottom:1px solid rgba(110,120,120,0.18);
-    box-shadow:inset 0 0 12px rgba(0,0,0,0.48);
-  }
-
-  .halo-front::after {
-    content:"";
-    position:absolute;
-    left:8px;
-    top:96px;
-    width:1px;
-    height:88px;
-    background:rgba(255,255,255,0.05);
-    box-shadow:28px 0 rgba(255,255,255,0.035), 62px 0 rgba(0,0,0,0.12);
-  }
-
-  .halo-side {
-    position:absolute;
-    right:6px;
-    top:8px;
-    width:38px;
-    height:202px;
-    border-radius:0 6px 10px 0;
-    background:
-      linear-gradient(90deg, rgba(65,70,72,1), rgba(92,98,100,0.96) 42%, rgba(42,46,48,1) 100%);
-    border:1px solid rgba(130,140,140,0.25);
-    box-shadow:
-      inset -8px 0 14px rgba(0,0,0,0.38),
-      0 0 12px rgba(0,180,255,0.20);
-    z-index:2;
-  }
-
-  .halo-logo-ring {
-    position:absolute;
-    left:11px;
-    top:8px;
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    background:
-      radial-gradient(circle at center, rgba(38,50,52,1) 0 47%, transparent 48%),
-      conic-gradient(from -90deg, #66ff7a 0 var(--socDeg), rgba(0,229,255,0.18) var(--socDeg) 360deg);
-    box-shadow:
-      0 0 10px rgba(0,229,255,0.75),
-      inset 0 0 8px rgba(102,255,122,0.25);
-    z-index:8;
-    overflow:hidden;
-  }
-
-  .halo-logo-ring::before {
-    content:"";
-    position:absolute;
-    inset:-3px;
-    border-radius:50%;
-    background:
-      conic-gradient(from -90deg, transparent 0deg, transparent 295deg, rgba(255,255,255,0.95) 318deg, #66ff7a 336deg, transparent 360deg);
-    filter:blur(0.4px);
-    opacity:0;
-  }
-
-  .halo-logo-ring.charging::before {
-    opacity:1;
-    animation:haloRingClockwise 2.4s linear infinite;
-  }
-
-  .halo-logo-ring.discharging::before {
-    opacity:1;
-    background:
-      conic-gradient(from -90deg, transparent 0deg, transparent 295deg, rgba(255,255,255,0.95) 318deg, #ff9b35 336deg, transparent 360deg);
-    animation:haloRingCounter 2.4s linear infinite;
-  }
-
-  .halo-logo-ring.idle {
-    animation:haloRingIdle 3.2s ease-in-out infinite;
-  }
-
-  .halo-logo-ring::after {
-    content:"";
-    position:absolute;
-    inset:5px;
-    border-radius:50%;
-    background:rgba(45,52,54,0.98);
-    z-index:2;
-  }
-
-  .halo-logo {
-    position:absolute;
-    inset:4px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#dffbff;
-    font-size:8px;
-    font-weight:900;
-    text-shadow:0 0 6px rgba(0,200,255,0.9);
-    z-index:4;
-  }
-
-  .halo-top-leds {
-    position:absolute;
-    top:12px;
-    right:12px;
-    display:flex;
-    gap:8px;
-    z-index:8;
-  }
-
-  .halo-top-leds span {
-    width:6px;
-    height:6px;
-    border-radius:2px;
-    background:rgba(170,180,180,0.55);
-    box-shadow:inset 0 0 3px rgba(255,255,255,0.35);
-  }
-
-  .halo-grille {
-    position:absolute;
-    left:8px;
-    right:8px;
-    top:43px;
-    height:39px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    z-index:6;
-    opacity:.72;
-  }
-
-  .halo-grille span {
-    height:1px;
-    background:rgba(8,10,12,0.76);
-    box-shadow:0 1px 0 rgba(110,120,120,0.18);
-  }
-
-  .halo-main-door {
-    position:absolute;
-    left:13px;
-    right:13px;
-    bottom:39px;
-    height:72px;
-    border-radius:6px;
-    background:
-      linear-gradient(180deg, rgba(42,47,49,0.95), rgba(31,35,37,0.98));
-    border:1px solid rgba(120,130,130,0.14);
-    box-shadow:
-      inset 0 0 12px rgba(0,0,0,0.35),
-      0 0 10px rgba(0,180,255,0.18);
-    z-index:7;
-  }
-
-  .halo-soc {
-    position:absolute;
-    top:8px;
-    width:100%;
-    text-align:center;
-    color:#dffbff;
-    font-size:28px;
-    font-weight:900;
-    text-shadow:0 0 14px rgba(0,180,255,0.95);
-  }
-
-  .halo-label {
-    position:absolute;
-    top:39px;
-    width:100%;
-    text-align:center;
-    color:#9eeeff;
-    font-size:9px;
-    font-weight:900;
-  }
-
-  .halo-mode {
-    position:absolute;
-    top:51px;
-    width:100%;
-    text-align:center;
-    color:#66ff7a;
-    font-size:8px;
-    font-weight:900;
-    text-shadow:0 0 8px rgba(102,255,122,0.8);
-  }
-
-  .hyxi-halo.discharging .halo-mode {
-    color:#ff9b35;
-    text-shadow:0 0 8px rgba(255,155,53,0.8);
-  }
-
-  .side-slot {
-    position:absolute;
-    left:6px;
-    right:4px;
-    height:29px;
-    border-radius:2px;
-    background:
-      linear-gradient(180deg, rgba(10,12,13,0.85), rgba(35,40,41,0.95));
-    box-shadow:
-      inset 0 0 8px rgba(0,0,0,0.8),
-      0 0 5px rgba(0,180,255,0.10);
-  }
-
-  .side-slot::after {
-    content:"";
-    position:absolute;
-    left:3px;
-    right:3px;
-    bottom:3px;
-    height:10px;
-    background:
-      repeating-linear-gradient(
-        90deg,
-        rgba(85,95,95,0.35) 0px,
-        rgba(85,95,95,0.35) 2px,
-        transparent 2px,
-        transparent 5px
-      );
-  }
-
-  .slot1 { top:23px; }
-  .slot2 { top:94px; }
-  .slot3 { top:153px; }
-
-  .side-ports {
-    position:absolute;
-    right:-5px;
-    top:50px;
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-  }
-
-  .side-ports span {
-    width:5px;
-    height:18px;
-    border-radius:0 999px 999px 0;
-    background:rgba(10,12,14,0.85);
-    box-shadow:0 0 5px rgba(0,0,0,0.7);
-  }
-
-  .halo-feet {
-    position:absolute;
-    left:8px;
-    right:8px;
-    bottom:0;
-    display:flex;
-    justify-content:space-between;
-    z-index:8;
-  }
-
-  .halo-feet span {
-    width:12px;
-    height:4px;
-    border-radius:3px 3px 0 0;
-    background:rgba(25,28,30,0.9);
-    box-shadow:0 0 5px rgba(0,0,0,0.6);
-  }
-
-  .flow-arrow {
-    position:absolute;
-    top:95px;
-    font-size:24px;
-    font-weight:900;
-    opacity:0;
-    z-index:10;
-  }
-
-  .left-arrow {
-    left:-36px;
-    color:#66ff7a;
-    text-shadow:0 0 10px rgba(102,255,122,0.95);
-  }
-
-  .right-arrow {
-    right:-30px;
-    color:#00bfff;
-    text-shadow:0 0 10px rgba(0,180,255,0.95);
-  }
-
-  .hyxi-halo.charging .left-arrow {
-    opacity:1;
-    animation:arrowIn 1.1s linear infinite;
-  }
-
-  .hyxi-halo.discharging .right-arrow {
-    opacity:1;
-    color:#ff9b35;
-    text-shadow:0 0 10px rgba(255,155,53,0.95);
-    animation:arrowOut 1.1s linear infinite;
-  }
-
-  .status-list {
-    color:#dffbff;
-    line-height:1.85;
-    text-align:left;
-    font-size:14px;
-  }
-
-  .battery-section {
-    border-left:1px solid rgba(158,238,255,0.38);
-    padding:8px 14px;
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    gap:6px;
-  }
-
-  .section-title {
-    font-weight:900;
-    color:#9eeeff;
-    text-shadow:0 0 8px rgba(0,180,255,0.75);
-  }
-
-  .section-sub {
-    color:#9eeeff;
-    font-size:14px;
-  }
-
-  .blue-value,.orange-value,.green-value {
-    font-size:27px;
-    font-weight:900;
-  }
-
-  .blue-value {
-    color:#00bfff;
-    text-shadow:0 0 12px rgba(0,180,255,0.9);
-  }
-
-  .orange-value {
-    color:#ff9b35;
-    text-shadow:0 0 12px rgba(255,120,0,0.9);
-  }
-
-  .green-value {
-    color:#66ff7a;
-    text-shadow:0 0 12px rgba(102,255,122,0.8);
-  }
-
-  .small {
-    font-size:21px;
-  }
-
-  .divider {
-    width:82%;
-    height:1px;
-    background:rgba(158,238,255,0.25);
-    margin:5px auto;
-  }
-
-  .battery-graphic {
-    width:88px;
-    height:134px;
-    position:relative;
-    margin:0 auto 8px;
-    filter:drop-shadow(0 0 16px rgba(102,255,122,0.65));
-  }
-
-  .battery-graphic.charging {
-    animation:chargePulse 1.2s infinite alternate;
-  }
-
-  .battery-graphic.discharging {
-    animation:dischargePulse 1.2s infinite alternate;
-  }
-
-  .battery-top {
-    width:32px;
-    height:10px;
-    border:2px solid rgba(158,238,255,0.75);
-    border-bottom:none;
-    border-radius:8px 8px 0 0;
-    margin:0 auto;
-  }
-
-  .battery-body {
-    width:78px;
-    height:118px;
-    margin:0 auto;
-    border:2px solid rgba(158,238,255,0.85);
-    border-radius:14px;
-    position:relative;
-    overflow:hidden;
-    background:rgba(4,8,20,0.92);
-    box-shadow:inset 0 0 20px rgba(0,180,255,0.32),0 0 12px rgba(0,180,255,0.65);
-  }
-
-  .battery-fill {
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:100%;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.28), rgba(102,255,122,0.88), rgba(0,255,80,0.64));
-    box-shadow:0 0 18px rgba(102,255,122,0.8);
-    animation:energyFlow 2.4s ease-in-out infinite;
-  }
-
-  .battery-bolt {
-    position:absolute;
-    top:32px;
-    left:0;
-    right:0;
-    text-align:center;
-    color:#66ff7a;
-    font-size:44px;
-    text-shadow:0 0 14px rgba(102,255,122,1);
-  }
-
-  .battery-graphic.charging .battery-bolt {
-    animation:boltFlash .9s infinite;
-  }
-
-  .battery-graphic.discharging .battery-bolt {
-    color:#ff9b35;
-    text-shadow:0 0 14px rgba(255,155,53,1);
-    animation:boltFlash 1.2s infinite;
-  }
-
-  .payback-bar {
-    width:92%;
-    height:14px;
-    border-radius:20px;
-    overflow:hidden;
-    background:rgba(158,238,255,0.16);
-    border:1px solid rgba(158,238,255,0.35);
-    box-shadow:inset 0 0 10px rgba(0,80,255,0.35);
-    margin:4px auto;
-  }
-
-  .payback-fill {
-    height:100%;
-    background:linear-gradient(90deg,#00bfff,#66ff7a,#ff9b35);
-    box-shadow:0 0 12px rgba(102,255,122,0.8);
-    animation:paybackFlow 3s ease-in-out infinite;
-  }
-
-  b,strong {
-    color:#9eeeff;
-    text-shadow:0 0 8px rgba(0,180,255,0.55);
-  }
-
-  @keyframes ultraGlow {
-    0%,100% {
-      box-shadow:
-        0 0 16px rgba(0,180,255,0.75),
-        inset 0 0 22px rgba(0,80,255,0.32),
-        0 0 28px rgba(102,255,122,0.24);
-    }
-    50% {
-      box-shadow:
-        0 0 30px rgba(0,180,255,1),
-        inset 0 0 30px rgba(0,80,255,0.55),
-        0 0 42px rgba(102,255,122,0.45);
-    }
-  }
-
-  @keyframes haloRingClockwise {
-    from { transform:rotate(0deg); }
-    to { transform:rotate(360deg); }
-  }
-
-  @keyframes haloRingCounter {
-    from { transform:rotate(0deg); }
-    to { transform:rotate(-360deg); }
-  }
-
-  @keyframes haloRingIdle {
-    0%,100% { filter:brightness(1); }
-    50% { filter:brightness(1.32); }
-  }
-
-  @keyframes haloChargePulse {
-    0%,100% { filter:drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
-    50% {
-      filter:
-        drop-shadow(0 0 24px rgba(0,180,255,0.85))
-        drop-shadow(0 0 22px rgba(102,255,122,0.55));
-    }
-  }
-
-  @keyframes haloDischargePulse {
-    0%,100% { filter:drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
-    50% {
-      filter:
-        drop-shadow(0 0 24px rgba(0,180,255,0.85))
-        drop-shadow(0 0 22px rgba(255,155,53,0.55));
-    }
-  }
-
-  @keyframes arrowIn {
-    0% { transform:translateX(-8px); opacity:0; }
-    40% { opacity:1; }
-    100% { transform:translateX(8px); opacity:0; }
-  }
-
-  @keyframes arrowOut {
-    0% { transform:translateX(-8px); opacity:0; }
-    40% { opacity:1; }
-    100% { transform:translateX(8px); opacity:0; }
-  }
-
-  @keyframes energyFlow {
-    0%,100% { filter:brightness(1); }
-    50% { filter:brightness(1.38); }
-  }
-
-  @keyframes boltFlash {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:.42; transform:scale(1.16); }
-  }
-
-  @keyframes paybackFlow {
-    0%,100% { filter:brightness(1); }
-    50% { filter:brightness(1.35); }
-  }
-
-  @keyframes chargePulse {
-    from { filter:drop-shadow(0 0 10px rgba(102,255,122,0.5)); transform:scale(1); }
-    to { filter:drop-shadow(0 0 24px rgba(102,255,122,1)); transform:scale(1.04); }
-  }
-
-  @keyframes dischargePulse {
-    from { filter:drop-shadow(0 0 10px rgba(255,155,53,0.5)); transform:scale(1); }
-    to { filter:drop-shadow(0 0 24px rgba(255,155,53,1)); transform:scale(1.04); }
-  }
-
-  @media (max-width:1300px) {
-    .battery-dashboard { grid-template-columns:1fr 1fr; }
-    .battery-main { grid-column:span 2; }
-    .battery-section {
-      border-left:none;
-      border-top:1px solid rgba(158,238,255,0.28);
-    }
-  }
+              `;
+            ]]]
+        extra_styles: |
+          .battery-dashboard {
+            display:grid;
+            grid-template-columns:1.75fr 1fr 1fr 1fr 1fr 1.1fr 1.05fr;
+            gap:16px;
+            align-items:stretch;
+            width:100%;
+          }
+
+          .battery-main {
+            display:grid;
+            grid-template-columns:160px 1fr;
+            gap:18px;
+            align-items:center;
+          }
+
+          .hyxi-halo {
+            position:relative;
+            width:138px;
+            height:218px;
+            margin:0 auto;
+            transform:perspective(420px) rotateY(-10deg);
+            filter:drop-shadow(0 0 18px rgba(0,180,255,0.55));
+          }
+
+          .hyxi-halo.charging {
+            animation:haloChargePulse 1.8s ease-in-out infinite;
+          }
+
+          .hyxi-halo.discharging {
+            animation:haloDischargePulse 1.8s ease-in-out infinite;
+          }
+
+          .halo-front {
+            position:absolute;
+            left:0;
+            top:0;
+            width:105px;
+            height:218px;
+            border-radius:4px 4px 10px 10px;
+            background:
+              linear-gradient(180deg, rgba(75,80,82,0.98) 0%, rgba(48,53,55,0.99) 42%, rgba(39,43,45,1) 100%);
+            border:1px solid rgba(140,150,150,0.35);
+            box-shadow:
+              0 0 18px rgba(0,180,255,0.55),
+              inset 8px 0 16px rgba(255,255,255,0.08),
+              inset -10px 0 14px rgba(0,0,0,0.34),
+              0 0 24px rgba(102,255,122,0.18);
+            overflow:hidden;
+            z-index:4;
+          }
+
+          .halo-front::before {
+            content:"";
+            position:absolute;
+            left:0;
+            right:0;
+            top:38px;
+            height:50px;
+            background:
+              repeating-linear-gradient(
+                180deg,
+                rgba(9,12,13,0.72) 0px,
+                rgba(9,12,13,0.72) 2px,
+                rgba(95,105,105,0.28) 3px,
+                rgba(95,105,105,0.28) 5px
+              );
+            border-top:1px solid rgba(0,0,0,0.35);
+            border-bottom:1px solid rgba(110,120,120,0.18);
+            box-shadow:inset 0 0 12px rgba(0,0,0,0.48);
+          }
+
+          .halo-front::after {
+            content:"";
+            position:absolute;
+            left:8px;
+            top:96px;
+            width:1px;
+            height:88px;
+            background:rgba(255,255,255,0.05);
+            box-shadow:28px 0 rgba(255,255,255,0.035), 62px 0 rgba(0,0,0,0.12);
+          }
+
+          .halo-side {
+            position:absolute;
+            right:6px;
+            top:8px;
+            width:38px;
+            height:202px;
+            border-radius:0 6px 10px 0;
+            background:
+              linear-gradient(90deg, rgba(65,70,72,1), rgba(92,98,100,0.96) 42%, rgba(42,46,48,1) 100%);
+            border:1px solid rgba(130,140,140,0.25);
+            box-shadow:
+              inset -8px 0 14px rgba(0,0,0,0.38),
+              0 0 12px rgba(0,180,255,0.20);
+            z-index:2;
+          }
+
+          .halo-logo-ring {
+            position:absolute;
+            left:11px;
+            top:8px;
+            width:34px;
+            height:34px;
+            border-radius:50%;
+            background:
+              radial-gradient(circle at center, rgba(38,50,52,1) 0 47%, transparent 48%),
+              conic-gradient(from -90deg, #66ff7a 0 var(--socDeg), rgba(0,229,255,0.18) var(--socDeg) 360deg);
+            box-shadow:
+              0 0 10px rgba(0,229,255,0.75),
+              inset 0 0 8px rgba(102,255,122,0.25);
+            z-index:8;
+            overflow:hidden;
+          }
+
+          .halo-logo-ring::before {
+            content:"";
+            position:absolute;
+            inset:-3px;
+            border-radius:50%;
+            background:
+              conic-gradient(from -90deg, transparent 0deg, transparent 295deg, rgba(255,255,255,0.95) 318deg, #66ff7a 336deg, transparent 360deg);
+            filter:blur(0.4px);
+            opacity:0;
+          }
+
+          .halo-logo-ring.charging::before {
+            opacity:1;
+            animation:haloRingClockwise 2.4s linear infinite;
+          }
+
+          .halo-logo-ring.discharging::before {
+            opacity:1;
+            background:
+              conic-gradient(from -90deg, transparent 0deg, transparent 295deg, rgba(255,255,255,0.95) 318deg, #ff9b35 336deg, transparent 360deg);
+            animation:haloRingCounter 2.4s linear infinite;
+          }
+
+          .halo-logo-ring.idle {
+            animation:haloRingIdle 3.2s ease-in-out infinite;
+          }
+
+          .halo-logo-ring::after {
+            content:"";
+            position:absolute;
+            inset:5px;
+            border-radius:50%;
+            background:rgba(45,52,54,0.98);
+            z-index:2;
+          }
+
+          .halo-logo {
+            position:absolute;
+            inset:4px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#dffbff;
+            font-size:8px;
+            font-weight:900;
+            text-shadow:0 0 6px rgba(0,200,255,0.9);
+            z-index:4;
+          }
+
+          .halo-top-leds {
+            position:absolute;
+            top:12px;
+            right:12px;
+            display:flex;
+            gap:8px;
+            z-index:8;
+          }
+
+          .halo-top-leds span {
+            width:6px;
+            height:6px;
+            border-radius:2px;
+            background:rgba(170,180,180,0.55);
+            box-shadow:inset 0 0 3px rgba(255,255,255,0.35);
+          }
+
+          .halo-grille {
+            position:absolute;
+            left:8px;
+            right:8px;
+            top:43px;
+            height:39px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            z-index:6;
+            opacity:.72;
+          }
+
+          .halo-grille span {
+            height:1px;
+            background:rgba(8,10,12,0.76);
+            box-shadow:0 1px 0 rgba(110,120,120,0.18);
+          }
+
+          .halo-main-door {
+            position:absolute;
+            left:13px;
+            right:13px;
+            bottom:39px;
+            height:72px;
+            border-radius:6px;
+            background:
+              linear-gradient(180deg, rgba(42,47,49,0.95), rgba(31,35,37,0.98));
+            border:1px solid rgba(120,130,130,0.14);
+            box-shadow:
+              inset 0 0 12px rgba(0,0,0,0.35),
+              0 0 10px rgba(0,180,255,0.18);
+            z-index:7;
+          }
+
+          .halo-soc {
+            position:absolute;
+            top:8px;
+            width:100%;
+            text-align:center;
+            color:#dffbff;
+            font-size:28px;
+            font-weight:900;
+            text-shadow:0 0 14px rgba(0,180,255,0.95);
+          }
+
+          .halo-label {
+            position:absolute;
+            top:39px;
+            width:100%;
+            text-align:center;
+            color:#9eeeff;
+            font-size:9px;
+            font-weight:900;
+          }
+
+          .halo-mode {
+            position:absolute;
+            top:51px;
+            width:100%;
+            text-align:center;
+            color:#66ff7a;
+            font-size:8px;
+            font-weight:900;
+            text-shadow:0 0 8px rgba(102,255,122,0.8);
+          }
+
+          .hyxi-halo.discharging .halo-mode {
+            color:#ff9b35;
+            text-shadow:0 0 8px rgba(255,155,53,0.8);
+          }
+
+          .side-slot {
+            position:absolute;
+            left:6px;
+            right:4px;
+            height:29px;
+            border-radius:2px;
+            background:
+              linear-gradient(180deg, rgba(10,12,13,0.85), rgba(35,40,41,0.95));
+            box-shadow:
+              inset 0 0 8px rgba(0,0,0,0.8),
+              0 0 5px rgba(0,180,255,0.10);
+          }
+
+          .side-slot::after {
+            content:"";
+            position:absolute;
+            left:3px;
+            right:3px;
+            bottom:3px;
+            height:10px;
+            background:
+              repeating-linear-gradient(
+                90deg,
+                rgba(85,95,95,0.35) 0px,
+                rgba(85,95,95,0.35) 2px,
+                transparent 2px,
+                transparent 5px
+              );
+          }
+
+          .slot1 { top:23px; }
+          .slot2 { top:94px; }
+          .slot3 { top:153px; }
+
+          .side-ports {
+            position:absolute;
+            right:-5px;
+            top:50px;
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+          }
+
+          .side-ports span {
+            width:5px;
+            height:18px;
+            border-radius:0 999px 999px 0;
+            background:rgba(10,12,14,0.85);
+            box-shadow:0 0 5px rgba(0,0,0,0.7);
+          }
+
+          .halo-feet {
+            position:absolute;
+            left:8px;
+            right:8px;
+            bottom:0;
+            display:flex;
+            justify-content:space-between;
+            z-index:8;
+          }
+
+          .halo-feet span {
+            width:12px;
+            height:4px;
+            border-radius:3px 3px 0 0;
+            background:rgba(25,28,30,0.9);
+            box-shadow:0 0 5px rgba(0,0,0,0.6);
+          }
+
+          .flow-arrow {
+            position:absolute;
+            top:95px;
+            font-size:24px;
+            font-weight:900;
+            opacity:0;
+            z-index:10;
+          }
+
+          .left-arrow {
+            left:-36px;
+            color:#66ff7a;
+            text-shadow:0 0 10px rgba(102,255,122,0.95);
+          }
+
+          .right-arrow {
+            right:-30px;
+            color:#00bfff;
+            text-shadow:0 0 10px rgba(0,180,255,0.95);
+          }
+
+          .hyxi-halo.charging .left-arrow {
+            opacity:1;
+            animation:arrowIn 1.1s linear infinite;
+          }
+
+          .hyxi-halo.discharging .right-arrow {
+            opacity:1;
+            color:#ff9b35;
+            text-shadow:0 0 10px rgba(255,155,53,0.95);
+            animation:arrowOut 1.1s linear infinite;
+          }
+
+          .status-list {
+            color:#dffbff;
+            line-height:1.85;
+            text-align:left;
+            font-size:14px;
+          }
+
+          .battery-section {
+            border-left:1px solid rgba(158,238,255,0.38);
+            padding:8px 14px;
+            text-align:center;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:6px;
+          }
+
+          .section-title {
+            font-weight:900;
+            color:#9eeeff;
+            text-shadow:0 0 8px rgba(0,180,255,0.75);
+          }
+
+          .section-sub {
+            color:#9eeeff;
+            font-size:14px;
+          }
+
+          .blue-value,.orange-value,.green-value {
+            font-size:27px;
+            font-weight:900;
+          }
+
+          .blue-value {
+            color:#00bfff;
+            text-shadow:0 0 12px rgba(0,180,255,0.9);
+          }
+
+          .orange-value {
+            color:#ff9b35;
+            text-shadow:0 0 12px rgba(255,120,0,0.9);
+          }
+
+          .green-value {
+            color:#66ff7a;
+            text-shadow:0 0 12px rgba(102,255,122,0.8);
+          }
+
+          .small {
+            font-size:21px;
+          }
+
+          .divider {
+            width:82%;
+            height:1px;
+            background:rgba(158,238,255,0.25);
+            margin:5px auto;
+          }
+
+          .battery-graphic {
+            width:88px;
+            height:134px;
+            position:relative;
+            margin:0 auto 8px;
+            filter:drop-shadow(0 0 16px rgba(102,255,122,0.65));
+          }
+
+          .battery-graphic.charging {
+            animation:chargePulse 1.2s infinite alternate;
+          }
+
+          .battery-graphic.discharging {
+            animation:dischargePulse 1.2s infinite alternate;
+          }
+
+          .battery-top {
+            width:32px;
+            height:10px;
+            border:2px solid rgba(158,238,255,0.75);
+            border-bottom:none;
+            border-radius:8px 8px 0 0;
+            margin:0 auto;
+          }
+
+          .battery-body {
+            width:78px;
+            height:118px;
+            margin:0 auto;
+            border:2px solid rgba(158,238,255,0.85);
+            border-radius:14px;
+            position:relative;
+            overflow:hidden;
+            background:rgba(4,8,20,0.92);
+            box-shadow:inset 0 0 20px rgba(0,180,255,0.32),0 0 12px rgba(0,180,255,0.65);
+          }
+
+          .battery-fill {
+            position:absolute;
+            bottom:0;
+            left:0;
+            width:100%;
+            background:
+              linear-gradient(180deg, rgba(255,255,255,0.28), rgba(102,255,122,0.88), rgba(0,255,80,0.64));
+            box-shadow:0 0 18px rgba(102,255,122,0.8);
+            animation:energyFlow 2.4s ease-in-out infinite;
+          }
+
+          .battery-bolt {
+            position:absolute;
+            top:32px;
+            left:0;
+            right:0;
+            text-align:center;
+            color:#66ff7a;
+            font-size:44px;
+            text-shadow:0 0 14px rgba(102,255,122,1);
+          }
+
+          .battery-graphic.charging .battery-bolt {
+            animation:boltFlash .9s infinite;
+          }
+
+          .battery-graphic.discharging .battery-bolt {
+            color:#ff9b35;
+            text-shadow:0 0 14px rgba(255,155,53,1);
+            animation:boltFlash 1.2s infinite;
+          }
+
+          .payback-bar {
+            width:92%;
+            height:14px;
+            border-radius:20px;
+            overflow:hidden;
+            background:rgba(158,238,255,0.16);
+            border:1px solid rgba(158,238,255,0.35);
+            box-shadow:inset 0 0 10px rgba(0,80,255,0.35);
+            margin:4px auto;
+          }
+
+          .payback-fill {
+            height:100%;
+            background:linear-gradient(90deg,#00bfff,#66ff7a,#ff9b35);
+            box-shadow:0 0 12px rgba(102,255,122,0.8);
+            animation:paybackFlow 3s ease-in-out infinite;
+          }
+
+          b,strong {
+            color:#9eeeff;
+            text-shadow:0 0 8px rgba(0,180,255,0.55);
+          }
+
+          @keyframes ultraGlow {
+            0%,100% {
+              box-shadow:
+                0 0 16px rgba(0,180,255,0.75),
+                inset 0 0 22px rgba(0,80,255,0.32),
+                0 0 28px rgba(102,255,122,0.24);
+            }
+            50% {
+              box-shadow:
+                0 0 30px rgba(0,180,255,1),
+                inset 0 0 30px rgba(0,80,255,0.55),
+                0 0 42px rgba(102,255,122,0.45);
+            }
+          }
+
+          @keyframes haloRingClockwise {
+            from { transform:rotate(0deg); }
+            to { transform:rotate(360deg); }
+          }
+
+          @keyframes haloRingCounter {
+            from { transform:rotate(0deg); }
+            to { transform:rotate(-360deg); }
+          }
+
+          @keyframes haloRingIdle {
+            0%,100% { filter:brightness(1); }
+            50% { filter:brightness(1.32); }
+          }
+
+          @keyframes haloChargePulse {
+            0%,100% { filter:drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
+            50% {
+              filter:
+                drop-shadow(0 0 24px rgba(0,180,255,0.85))
+                drop-shadow(0 0 22px rgba(102,255,122,0.55));
+            }
+          }
+
+          @keyframes haloDischargePulse {
+            0%,100% { filter:drop-shadow(0 0 18px rgba(0,180,255,0.55)); }
+            50% {
+              filter:
+                drop-shadow(0 0 24px rgba(0,180,255,0.85))
+                drop-shadow(0 0 22px rgba(255,155,53,0.55));
+            }
+          }
+
+          @keyframes arrowIn {
+            0% { transform:translateX(-8px); opacity:0; }
+            40% { opacity:1; }
+            100% { transform:translateX(8px); opacity:0; }
+          }
+
+          @keyframes arrowOut {
+            0% { transform:translateX(-8px); opacity:0; }
+            40% { opacity:1; }
+            100% { transform:translateX(8px); opacity:0; }
+          }
+
+          @keyframes energyFlow {
+            0%,100% { filter:brightness(1); }
+            50% { filter:brightness(1.38); }
+          }
+
+          @keyframes boltFlash {
+            0%,100% { opacity:1; transform:scale(1); }
+            50% { opacity:.42; transform:scale(1.16); }
+          }
+
+          @keyframes paybackFlow {
+            0%,100% { filter:brightness(1); }
+            50% { filter:brightness(1.35); }
+          }
+
+          @keyframes chargePulse {
+            from { filter:drop-shadow(0 0 10px rgba(102,255,122,0.5)); transform:scale(1); }
+            to { filter:drop-shadow(0 0 24px rgba(102,255,122,1)); transform:scale(1.04); }
+          }
+
+          @keyframes dischargePulse {
+            from { filter:drop-shadow(0 0 10px rgba(255,155,53,0.5)); transform:scale(1); }
+            to { filter:drop-shadow(0 0 24px rgba(255,155,53,1)); transform:scale(1.04); }
+          }
+
+          @media (max-width:1300px) {
+            .battery-dashboard { grid-template-columns:1fr 1fr; }
+            .battery-main { grid-column:span 2; }
+            .battery-section {
+              border-left:none;
+              border-top:1px solid rgba(158,238,255,0.28);
+            }
+          }
