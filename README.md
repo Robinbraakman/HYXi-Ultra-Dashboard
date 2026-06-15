@@ -2,47 +2,48 @@
 
 # 🔋 HYXi Ultra Dashboard
 
-Community Home Assistant dashboard voor HYXi batterijsystemen met live monitoring, prestatie-analyse en terugverdienberekeningen.
+Community Home Assistant dashboard for HYXi battery systems with live monitoring, performance analysis, and payback calculations.
 
-## ✨ Functies
+## ✨ Features
 
-- 📊 Live laad- en ontlaadvermogen
-- 🔋 Batterijpercentage (SOC)
-- ⚡ Totaal geladen en ontladen energie
-- 📈 Rendementberekening
-- 🔄 Cycliberekening
-- 💰 Winstindicatie
-- ⏳ Terugverdientijdberekening
-- 🎨 Neon HYXi dashboard design
-- 📱 Werkt op desktop, tablet en mobiel
+* 📊 Live charging and discharging power
+* 🔋 Battery percentage (SOC)
+* ⚡ Total charged and discharged energy
+* 📈 Efficiency calculation
+* 🔄 Cycle calculation
+* 💰 Savings indication
+* ⏳ Payback calculation
+* 🎨 Neon HYXi dashboard design
+* 📱 Works on desktop, tablet, and mobile
 
 ---
 
 ## 📸 Screenshot
 
-<img width="1631" height="314" alt="image" src="https://github.com/user-attachments/assets/2880ed57-3229-4b08-bec7-d3cd4c4df70f" /> new!
+<img width="1631" height="314" alt="image" src="https://github.com/user-attachments/assets/2880ed57-3229-4b08-bec7-d3cd4c4df70f" />
+<img width="1666" height="316" alt="image" src="https://github.com/user-attachments/assets/8dc0f8ec-26ef-4370-aa05-79250a0f749c" />
 
 ---
 
-## 📋 Vereisten
+## 📋 Requirements
 
 ### Home Assistant
 
-- Home Assistant 2024.6 of nieuwer
-- Werkende HYXi integratie
+* Home Assistant 2024.6 or newer
+* Working HYXi integration
 
 ### HACS
 
-Installeer via HACS:
+Install via HACS:
 
-- Button Card
-- Card Mod (aanbevolen)
+* Button Card
+* Card Mod recommended
 
 ---
 
-## 🔧 Benodigde sensoren
+## 🔧 Required sensors
 
-Vervang `123456789` door jouw eigen HYXi serienummer.
+Replace `123456789` with your own HYXi serial number.
 
 ```yaml
 sensor.hyxi_123456789_batsoc
@@ -54,81 +55,92 @@ sensor.hyxi_123456789_bat_discharging
 
 ---
 
-## ⚙️ Standaard instellingen
+## ⚙️ Default settings
 
 ```text
-Capaciteit: 9.2 kWh
-Investering: €1870
-Stroomprijs: €0.1357 per kWh
-Injectietarief: €0.0151 per kWh
+Capacity: 9.2 kWh
+Investment: €1870
+Electricity price: €0.1357 per kWh
+Feed-in tariff: €0.0151 per kWh
 ```
 
-Pas deze waarden aan naar je eigen situatie.
+Adjust these values to match your own situation.
 
 ---
 
-## 🚀 Installatie
+## 🚀 Installation
 
-1. Download de YAML uit deze repository.
+This repository contains a full dashboard YAML example.
+
+1. Download the YAML file from this repository.
 2. Open Home Assistant.
-3. Dashboard → Kaart toevoegen → Handmatig → plak de losse YAML
-4. Plak de YAML.
-5. Sla op.
-6. Vervang de voorbeeldsensoren door je eigen HYXi sensoren.
-7. Pas eventueel de standaardwaarden aan.
+3. Create a new dashboard or open an existing dashboard.
+4. Click the three dots in the top-right corner.
+5. Select **Edit dashboard**.
+6. Click the three dots again and choose **Raw configuration editor**.
+7. Paste the full YAML configuration.
+8. Save the dashboard.
+9. Replace the example sensors with your own HYXi sensors.
+10. Adjust the default values if needed.
 
 ---
 
-## 📂 Inbegrepen bestand
+## 📂 Included file
 
 ```text
 HYXi_Ultra_Dashboard_Community_123456789.yaml
 ```
 
-Dit bestand bevat voorbeeldsensoren zodat iedereen het dashboard eenvoudig kan aanpassen aan zijn eigen HYXi installatie.
+This file contains example sensors so everyone can easily adapt the dashboard to their own HYXi installation.
 
 ---
 
-## 🎨 Dashboard kenmerken
+## 🎨 Dashboard highlights
 
-- Neon cyber-stijl ontwerp
-- Dynamische batterijring
-- Live laad- en ontlaadstatus
-- Rendementsscore (A+ t/m C)
-- Cycliberekening
-- Verliesanalyse
-- Winstindicatie
-- Terugverdientijd berekening
-- Mobiel geoptimaliseerd
-- Tablet geoptimaliseerd
-- Desktop ondersteuning
+* Neon cyber-style design
+* Dynamic battery ring
+* Live charging and discharging status
+* Efficiency score from A+ to C
+* Cycle calculation
+* Loss analysis
+* Savings indication
+* Payback time calculation
+* Mobile optimized
+* Tablet optimized
+* Desktop support
 
 ---
 
 ## ⚠️ Disclaimer
 
-Dit dashboard is gemaakt door de Home Assistant community en is niet officieel verbonden aan HYXi.
+This dashboard was created by the Home Assistant community and is not officially affiliated with HYXi.
 
-Gebruik op eigen risico.
+Use at your own risk.
 
-Controleer altijd zelf de berekeningen voor rendement, winst en terugverdientijd.
+Always verify the calculations for efficiency, savings, and payback time yourself.
 
 ---
-## 🤝 Bijdragen
 
-Verbeteringen, bugfixes en ideeën zijn altijd welkom.
+## 🤝 Contributing
 
-Maak gerust een Issue of Pull Request aan.
+Improvements, bug fixes, and ideas are always welcome.
 
-## 📜 Licentie
+Feel free to open an Issue or Pull Request.
+
+---
+
+## 📜 License
+
 MIT License
-## ☕ Ondersteun het project
 
-Vind je dit dashboard handig?
+---
+
+## ☕ Support the project
+
+Do you find this dashboard useful?
 
 ☕ Buy me a coffee:
 https://paypal.me/deadbyrobin
 
-⭐ Of geef deze repository een Star op GitHub.
-MIT License
+⭐ Or give this repository a Star on GitHub.
 
