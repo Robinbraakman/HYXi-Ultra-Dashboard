@@ -31,6 +31,8 @@ This project provides a custom Lovelace card for Home Assistant, designed as a w
 
 
 ---
+This version no longer requires a long button-card YAML configuration.  
+The dashboard now runs as a native custom Lovelace card.
 
 ## 📋 Requirements
 
@@ -231,6 +233,7 @@ language: en
 
 ```text
 dist/hyxi-ultra-dashboard-card.js
+dist/hyxihalopgnnieuw.png
 hacs.json
 README.md
 LICENSE
