@@ -14,6 +14,12 @@ class HyxiUltraDashboardCard extends HTMLElement {
       feed_in_price: 0.10,
       extra_benefit: 33.38,
       start_date: "2026-05-01",
+
+      image: "/hacsfiles/HYXi-Ultra-Dashboard/hyxihalopgnnieuw.png",
+
+      charged_correction: 0,
+      discharged_correction: 0,
+
       ...config,
     };
   }
@@ -79,8 +85,16 @@ class HyxiUltraDashboardCard extends HTMLElement {
     const labels = this.getLabels();
 
     const soc = this.getEntityValue(entities.soc);
-    const charged = this.getEntityValue(entities.charged);
-    const discharged = this.getEntityValue(entities.discharged);
+
+    const chargedRaw = this.getEntityValue(entities.charged);
+    const dischargedRaw = this.getEntityValue(entities.discharged);
+
+    const chargedCorrection = Number(this.config.charged_correction || 0);
+    const dischargedCorrection = Number(this.config.discharged_correction || 0);
+
+    const charged = Math.max(0, chargedRaw - chargedCorrection);
+    const discharged = Math.max(0, dischargedRaw - dischargedCorrection);
+
     const chargingPower = this.getEntityValue(entities.chargingPower);
     const dischargingPower = this.getEntityValue(entities.dischargingPower);
 
@@ -129,6 +143,8 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
     const socSafe = Math.max(0, Math.min(soc, 100));
     const socDeg = socSafe * 3.6;
+    const fill = Math.max(8, socSafe);
+    const image = this.config.image || "/hacsfiles/HYXi-Ultra-Dashboard/hyxihalopgnnieuw.png";
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -175,228 +191,219 @@ class HyxiUltraDashboardCard extends HTMLElement {
 
         .main {
           display: grid;
-          grid-template-columns: 180px 1fr;
-          gap: 22px;
+          grid-template-columns: 170px 1fr;
+          gap: 18px;
           align-items: center;
         }
 
         .hyxi {
           position: relative;
-          width: 172px;
-          height: 238px;
+          width: 155px;
+          height: 230px;
           margin: 0 auto;
-          transform: perspective(480px) rotateY(-9deg);
+          filter: drop-shadow(0 0 18px rgba(0,180,255,0.55));
+        }
+
+        .hyxi-device-img {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 150px;
+          height: auto;
+          transform: translate(-50%, -50%);
+          object-fit: contain;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          z-index: 2;
           filter:
-            drop-shadow(0 0 18px rgba(0,180,255,0.58))
-            drop-shadow(0 0 24px rgba(102,255,122,0.18));
+            drop-shadow(0 0 11px rgba(0,180,255,0.42))
+            drop-shadow(0 0 18px rgba(102,255,122,0.14));
         }
 
-        .hyxi.charging {
-          animation: haloChargePulse 1.8s ease-in-out infinite;
-        }
-
-        .hyxi.discharging {
-          animation: haloDischargePulse 1.8s ease-in-out infinite;
-        }
-
-        .halo-shadow {
+        .hyxi-logo-led {
           position: absolute;
-          left: 16px;
-          right: 14px;
-          bottom: -8px;
-          height: 20px;
-          border-radius: 50%;
-          background: radial-gradient(ellipse at center, rgba(0,180,255,0.35), transparent 70%);
-          filter: blur(5px);
-          z-index: 0;
-        }
-
-        .side {
-          position: absolute;
-          right: 9px;
-          top: 13px;
-          width: 44px;
-          height: 215px;
-          border-radius: 0 10px 16px 0;
-          background:
-            linear-gradient(90deg, rgba(28,34,36,1), rgba(73,82,84,0.98) 44%, rgba(21,25,27,1));
-          border: 1px solid rgba(130,150,150,0.28);
-          box-shadow:
-            inset -10px 0 16px rgba(0,0,0,0.55),
-            inset 4px 0 8px rgba(255,255,255,0.05),
-            0 0 12px rgba(0,180,255,0.22);
-          z-index: 1;
-        }
-
-        .side::before {
-          content: "";
-          position: absolute;
+          z-index: 15;
+          left: 30px;
           top: 18px;
-          right: 7px;
-          width: 10px;
-          height: 176px;
-          border-radius: 8px;
-          background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(0,0,0,0.18));
-          opacity: .55;
-        }
-
-        .front {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 138px;
-          height: 238px;
-          border-radius: 7px 7px 16px 16px;
-          background:
-            linear-gradient(90deg, rgba(255,255,255,0.08), transparent 18%, transparent 78%, rgba(0,0,0,0.33)),
-            linear-gradient(180deg, rgba(73,82,84,0.98), rgba(41,49,52,0.99) 38%, rgba(24,29,31,1));
-          border: 1px solid rgba(170,190,190,0.30);
-          box-shadow:
-            0 0 19px rgba(0,180,255,0.48),
-            inset 10px 0 16px rgba(255,255,255,0.06),
-            inset -14px 0 18px rgba(0,0,0,0.46),
-            0 0 26px rgba(102,255,122,0.14);
-          overflow: hidden;
-          z-index: 3;
-        }
-
-        .front::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 50px;
-          height: 64px;
-          background: repeating-linear-gradient(
-            180deg,
-            rgba(6,8,9,0.86) 0px,
-            rgba(6,8,9,0.86) 3px,
-            rgba(95,110,110,0.25) 5px,
-            rgba(95,110,110,0.25) 8px
-          );
-          box-shadow:
-            inset 0 0 16px rgba(0,0,0,0.65),
-            0 1px 0 rgba(255,255,255,0.04);
-        }
-
-        .front::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background:
-            linear-gradient(120deg, rgba(255,255,255,0.14), transparent 16%, transparent 80%, rgba(255,255,255,0.04)),
-            radial-gradient(circle at 28% 18%, rgba(102,255,122,0.12), transparent 20%);
+          width: 18px;
+          height: 19px;
+          border-radius: 50%;
           pointer-events: none;
-          z-index: 12;
+          background:
+            conic-gradient(
+              from -90deg,
+              #66ff7a 0deg ${socDeg}deg,
+              rgba(0,229,255,0.24) ${socDeg}deg 360deg
+            );
+          -webkit-mask:
+            radial-gradient(
+              farthest-side,
+              transparent 0 calc(100% - 3px),
+              #000 calc(100% - 2px) calc(100% - 1px),
+              transparent 100%
+            );
+          mask:
+            radial-gradient(
+              farthest-side,
+              transparent 0 calc(100% - 3px),
+              #000 calc(100% - 2px) calc(100% - 1px),
+              transparent 100%
+            );
+          filter:
+            drop-shadow(0 0 3px rgba(0,229,255,0.95))
+            drop-shadow(0 0 5px rgba(102,255,122,0.75));
         }
 
-        .logo-ring {
+        .hyxi-logo-led::before {
+          content: "";
           position: absolute;
-          left: 16px;
-          top: 15px;
-          width: 46px;
-          height: 46px;
+          inset: -1px;
           border-radius: 50%;
           background:
-            radial-gradient(circle at center, rgba(32,42,44,1) 0 44%, transparent 45%),
-            conic-gradient(from -90deg, #66ff7a 0 ${socDeg}deg, rgba(0,229,255,0.18) ${socDeg}deg 360deg);
-          box-shadow:
-            0 0 14px rgba(102,255,122,0.85),
-            0 0 18px rgba(0,229,255,0.45),
-            inset 0 0 8px rgba(0,0,0,0.5);
-          z-index: 10;
+            conic-gradient(
+              from -90deg,
+              transparent 0deg,
+              transparent 270deg,
+              rgba(255,255,255,1) 300deg,
+              #66ff7a 326deg,
+              #00e5ff 342deg,
+              transparent 360deg
+            );
+          -webkit-mask:
+            radial-gradient(
+              farthest-side,
+              transparent 0 calc(100% - 4px),
+              #000 calc(100% - 3px) calc(100% - 1px),
+              transparent 100%
+            );
+          mask:
+            radial-gradient(
+              farthest-side,
+              transparent 0 calc(100% - 4px),
+              #000 calc(100% - 3px) calc(100% - 1px),
+              transparent 100%
+            );
+          opacity: 0;
         }
 
-        .logo {
+        .hyxi-logo-led.charging {
+          filter:
+            drop-shadow(0 0 4px rgba(0,229,255,1))
+            drop-shadow(0 0 7px rgba(102,255,122,0.9));
+        }
+
+        .hyxi-logo-led.charging::before {
+          opacity: 1;
+          animation: ledRingClockwise 1.1s linear infinite;
+        }
+
+        .hyxi-logo-led.discharging {
+          background:
+            conic-gradient(
+              from -90deg,
+              #ff9b35 0deg ${socDeg}deg,
+              rgba(255,155,53,0.22) ${socDeg}deg 360deg
+            );
+          filter:
+            drop-shadow(0 0 4px rgba(255,155,53,1))
+            drop-shadow(0 0 7px rgba(255,120,0,0.9));
+        }
+
+        .hyxi-logo-led.discharging::before {
+          opacity: 1;
+          background:
+            conic-gradient(
+              from -90deg,
+              transparent 0deg,
+              transparent 270deg,
+              rgba(255,255,255,1) 300deg,
+              #ff9b35 326deg,
+              #ff5c00 342deg,
+              transparent 360deg
+            );
+          animation: ledRingCounterClockwise 1.1s linear infinite;
+        }
+
+        .hyxi-logo-led.idle {
+          opacity: .82;
+        }
+
+        .hyxi-soc-overlay {
           position: absolute;
-          inset: 7px;
-          border-radius: 50%;
-          background: rgba(24,34,36,0.95);
+          left: 40%;
+          top: 47%;
+          transform: translate(-50%, -50%);
+          width: 69px;
+          height: 52px;
+          border-radius: 11px;
+          background: rgba(4,8,20,0.58);
+          border: 1px solid rgba(158,238,255,0.24);
+          box-shadow:
+            inset 0 0 14px rgba(0,80,255,0.28),
+            0 0 12px rgba(0,180,255,0.34);
+          backdrop-filter: blur(2px);
+          z-index: 5;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
+        }
+
+        .hyxi-soc {
           color: #dffbff;
-          font-size: 10px;
+          font-size: 24px;
           font-weight: 900;
-          text-shadow: 0 0 6px rgba(0,200,255,0.9);
-        }
-
-        .grille {
-          position: absolute;
-          left: 10px;
-          right: 10px;
-          top: 58px;
-          height: 48px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          z-index: 7;
-          opacity: .86;
-        }
-
-        .grille span {
-          height: 2px;
-          border-radius: 2px;
-          background: rgba(5,7,8,0.86);
-          box-shadow:
-            0 1px 0 rgba(130,145,145,0.18),
-            0 0 3px rgba(0,0,0,0.5);
-        }
-
-        .screen {
-          position: absolute;
-          left: 25px;
-          right: 25px;
-          bottom: 62px;
-          height: 84px;
-          border-radius: 9px;
-          background:
-            linear-gradient(180deg, rgba(5,9,14,0.98), rgba(7,13,18,0.99));
-          border: 1px solid rgba(150,230,255,0.18);
-          box-shadow:
-            inset 0 0 16px rgba(0,0,0,0.72),
-            0 0 12px rgba(0,180,255,0.18);
-          z-index: 9;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .soc {
-          color: #e8fbff;
-          font-size: 31px;
           line-height: 1;
-          font-weight: 950;
           text-shadow: 0 0 14px rgba(0,180,255,0.95);
         }
 
-        .soc-label {
-          color: #dffbff;
-          font-size: 12px;
-          font-weight: 850;
-          margin-top: 4px;
+        .hyxi-label {
+          color: #9eeeff;
+          font-size: 8px;
+          font-weight: 900;
+          margin-top: 2px;
         }
 
-        .mode-label {
+        .hyxi-mode {
           color: ${pulseClass === "discharging" ? "#ff9b35" : "#66ff7a"};
-          font-size: 11px;
-          font-weight: 950;
-          text-shadow: 0 0 8px ${pulseClass === "discharging" ? "rgba(255,155,53,0.8)" : "rgba(102,255,122,0.8)"};
+          font-size: 7px;
+          font-weight: 900;
           margin-top: 3px;
+          text-shadow: 0 0 8px ${pulseClass === "discharging" ? "rgba(255,155,53,0.8)" : "rgba(102,255,122,0.8)"};
         }
 
-        .halo-label {
+        .flow-arrow {
           position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 24px;
-          color: #b7c5c9;
-          text-align: center;
-          font-size: 14px;
-          font-weight: 700;
-          letter-spacing: .9px;
+          top: 96px;
+          font-size: 24px;
+          font-weight: 900;
+          opacity: 0;
           z-index: 10;
+        }
+
+        .left-arrow {
+          left: -35px;
+          color: #66ff7a;
+          text-shadow: 0 0 10px rgba(102,255,122,0.95);
+        }
+
+        .right-arrow {
+          right: -35px;
+          color: #00bfff;
+          text-shadow: 0 0 10px rgba(0,180,255,0.95);
+        }
+
+        .hyxi.charging .left-arrow {
+          opacity: 1;
+          animation: arrowIn 1.1s linear infinite;
+        }
+
+        .hyxi.discharging .right-arrow {
+          opacity: 1;
+          color: #ff9b35;
+          text-shadow: 0 0 10px rgba(255,155,53,0.95);
+          animation: arrowOut 1.1s linear infinite;
         }
 
         .status {
@@ -427,7 +434,9 @@ class HyxiUltraDashboardCard extends HTMLElement {
           font-size: 14px;
         }
 
-        .blue, .orange, .green {
+        .blue,
+        .orange,
+        .green {
           font-size: 27px;
           font-weight: 900;
         }
@@ -463,7 +472,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
           height: 134px;
           position: relative;
           margin: 0 auto 8px;
-          filter: drop-shadow(0 0 16px rgba(102,255,122,0.65));
+          filter: drop-shadow(0 0 16px rgba(102,255,122,0.55));
         }
 
         .battery-top {
@@ -492,10 +501,10 @@ class HyxiUltraDashboardCard extends HTMLElement {
           bottom: 0;
           left: 0;
           width: 100%;
-          height: ${Math.max(8, socSafe)}%;
-          background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(102,255,122,0.88), rgba(0,255,80,0.64));
+          height: ${fill}%;
+          background:
+            linear-gradient(180deg, rgba(255,255,255,0.28), rgba(102,255,122,0.88), rgba(0,255,80,0.64));
           box-shadow: 0 0 18px rgba(102,255,122,0.8);
-          animation: energyFlow 2.4s ease-in-out infinite;
         }
 
         .bolt {
@@ -525,6 +534,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
           width: ${paybackPercent}%;
           background: linear-gradient(90deg,#00bfff,#66ff7a,#ff9b35);
           box-shadow: 0 0 12px rgba(102,255,122,0.8);
+          animation: paybackFlow 3s ease-in-out infinite;
         }
 
         b {
@@ -576,7 +586,9 @@ class HyxiUltraDashboardCard extends HTMLElement {
             border-top: 1px solid rgba(158,238,255,0.28);
           }
 
-          .blue, .orange, .green {
+          .blue,
+          .orange,
+          .green {
             font-size: 22px;
           }
         }
@@ -596,35 +608,31 @@ class HyxiUltraDashboardCard extends HTMLElement {
           }
         }
 
-        @keyframes haloChargePulse {
-          0%,100% {
-            filter:
-              drop-shadow(0 0 18px rgba(0,180,255,0.58))
-              drop-shadow(0 0 24px rgba(102,255,122,0.18));
-          }
-          50% {
-            filter:
-              drop-shadow(0 0 26px rgba(0,180,255,0.9))
-              drop-shadow(0 0 28px rgba(102,255,122,0.55));
-          }
+        @keyframes ledRingClockwise {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
-        @keyframes haloDischargePulse {
-          0%,100% {
-            filter:
-              drop-shadow(0 0 18px rgba(0,180,255,0.58))
-              drop-shadow(0 0 24px rgba(255,155,53,0.16));
-          }
-          50% {
-            filter:
-              drop-shadow(0 0 26px rgba(0,180,255,0.9))
-              drop-shadow(0 0 28px rgba(255,155,53,0.48));
-          }
+        @keyframes ledRingCounterClockwise {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-360deg); }
         }
 
-        @keyframes energyFlow {
+        @keyframes arrowIn {
+          0% { transform: translateX(-8px); opacity: 0; }
+          40% { opacity: 1; }
+          100% { transform: translateX(8px); opacity: 0; }
+        }
+
+        @keyframes arrowOut {
+          0% { transform: translateX(-8px); opacity: 0; }
+          40% { opacity: 1; }
+          100% { transform: translateX(8px); opacity: 0; }
+        }
+
+        @keyframes paybackFlow {
           0%,100% { filter: brightness(1); }
-          50% { filter: brightness(1.38); }
+          50% { filter: brightness(1.35); }
         }
       </style>
 
@@ -634,25 +642,18 @@ class HyxiUltraDashboardCard extends HTMLElement {
         <div class="dashboard">
           <div class="main">
             <div class="hyxi ${pulseClass}">
-              <div class="halo-shadow"></div>
-              <div class="side"></div>
-              <div class="front">
-                <div class="logo-ring">
-                  <div class="logo">HYXi</div>
-                </div>
+              <img class="hyxi-device-img" src="${image}" alt="HYXI battery">
 
-                <div class="grille">
-                  ${Array.from({ length: 13 }).map(() => "<span></span>").join("")}
-                </div>
+              <div class="hyxi-logo-led ${pulseClass}"></div>
 
-                <div class="screen">
-                  <div class="soc">${soc.toFixed(0)}%</div>
-                  <div class="soc-label">SOC</div>
-                  <div class="mode-label">${mode.toUpperCase()}</div>
-                </div>
-
-                <div class="halo-label">HALO</div>
+              <div class="hyxi-soc-overlay">
+                <div class="hyxi-soc">${soc.toFixed(0)}%</div>
+                <div class="hyxi-label">SOC</div>
+                <div class="hyxi-mode">${mode.toUpperCase()}</div>
               </div>
+
+              <div class="flow-arrow left-arrow">❯❯</div>
+              <div class="flow-arrow right-arrow">❯❯</div>
             </div>
 
             <div class="status">
@@ -745,8 +746,12 @@ class HyxiUltraDashboardCard extends HTMLElement {
       investment: 2222.99,
       electricity_price: 0.22568,
       feed_in_price: 0.10,
+      extra_benefit: 33.38,
       start_date: "2026-05-01",
       language: "en",
+      image: "/hacsfiles/HYXi-Ultra-Dashboard/hyxihalopgnnieuw.png",
+      charged_correction: 0,
+      discharged_correction: 0,
     };
   }
 }
@@ -759,5 +764,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "hyxi-ultra-dashboard-card",
   name: "HYXi Ultra Dashboard Card",
-  description: "A neon dashboard card for HYXi HALO battery systems.",
+  description: "A neon dashboard card for HYXi HALO battery systems with bundled image, dynamic LED ring and SOC overlay.",
 });
