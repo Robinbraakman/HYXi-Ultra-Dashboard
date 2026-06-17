@@ -1,4 +1,5 @@
-<img width="1634" height="309" alt="HYXi Ultra Dashboard" src="https://github.com/user-attachments/assets/6cebe4d4-317d-4428-b49d-44632513c485" />
+<img width="1616" height="338" alt="image" src="https://github.com/user-attachments/assets/48d08dce-a6cc-4cf1-9e75-5e14ce9655ca" />
+
 
 # 🔋 HYXi Ultra Dashboard
 
@@ -26,9 +27,8 @@ This project provides a custom Lovelace card for Home Assistant, designed as a w
 
 ## 📸 Screenshot
 
-<img width="1631" height="314" alt="HYXi Ultra Dashboard Screenshot" src="https://github.com/user-attachments/assets/2880ed57-3229-4b08-bec7-d3cd4c4df70f" />
+<img width="1636" height="683" alt="image" src="https://github.com/user-attachments/assets/a07308fc-fe47-401b-94c9-82043a5fb54b" />
 
-<img width="1666" height="316" alt="HYXi Ultra Dashboard Screenshot" src="https://github.com/user-attachments/assets/8dc0f8ec-26ef-4370-aa05-79250a0f749c" />
 
 ---
 
