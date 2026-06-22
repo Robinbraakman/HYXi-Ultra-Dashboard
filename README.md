@@ -91,6 +91,65 @@ Start date: 2026-05-01
 
 Adjust these values to match your own situation.
 
+💰 Savings calculation explained
+
+The savings calculation is intended as an indication, not as an exact financial calculation.
+
+The card currently uses this simple formula:
+
+savings = discharged kWh × (electricity_price - feed_in_price)
+
+Electricity price
+
+electricity_price is the price you normally pay when buying electricity from the grid.
+
+Example:
+
+electricity_price: 0.22568
+
+This means €0.22568 per kWh.
+
+Feed-in tariff
+
+feed_in_price is the estimated value of electricity that would otherwise be exported back to the grid.
+
+Example:
+
+feed_in_price: 0.10
+
+This means €0.10 per kWh.
+
+The card then calculates the estimated benefit of using battery energy instead of exporting that energy.
+
+Example:
+
+€0.22568 - €0.10 = €0.12568 benefit per kWh
+
+Dutch users: feed-in compensation and feed-in costs
+
+For Dutch users, this can be a little more complicated because energy contracts may include:
+
+* normal tariff
+* off-peak tariff
+* feed-in compensation
+* feed-in costs
+
+In the current simple calculation, feed_in_price should be seen as the net value of feed-in energy.
+
+That means:
+
+feed_in_price = feed-in compensation minus feed-in costs
+
+If your contract has separate feed-in costs, you may need to calculate this net value yourself.
+
+Normal and off-peak tariffs
+
+The current version does not yet calculate separate normal and off-peak tariffs.
+
+For an exact calculation, the card would need to know at what time the battery discharged and which tariff was active at that exact moment. Because this differs per country, supplier, contract, weekday, weekend, and time zone, the dashboard currently keeps the calculation simple.
+
+A future version may add a more advanced tariff mode.
+
 ---
 
 ## 🚀 HACS installation
