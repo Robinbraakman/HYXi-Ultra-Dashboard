@@ -12,6 +12,19 @@ class HyxiUltraDashboardCard extends HTMLElement {
       investment: 2222.99,
       electricity_price: 0.22568,
       feed_in_price: 0.10,
+
+      // Optional tariff mode.
+      // simple = original calculation
+      // nl_dual = Dutch normal/off-peak tariff calculation based on current time
+      tariff_mode: "simple",
+      normal_electricity_price: null,
+      offpeak_electricity_price: null,
+      feed_in_compensation: null,
+      feed_in_costs: 0,
+      offpeak_start: "23:00",
+      offpeak_end: "07:00",
+      weekend_offpeak: true,
+
       extra_benefit: 33.38,
       start_date: "2026-05-01",
 
@@ -70,11 +83,103 @@ class HyxiUltraDashboardCard extends HTMLElement {
       savings: nl ? "💰 WINST" : "💰 SAVINGS",
       totalSavings: nl ? "Winst totaal" : "Total savings",
       currentSavings: nl ? "Winst nu/uur indicatie" : "Current savings/hour estimate",
+      tariffNow: nl ? "Tarief nu" : "Current tariff",
+      simpleTariff: nl ? "Simpel" : "Simple",
+      normalTariff: nl ? "Normaal" : "Normal",
+      offpeakTariff: nl ? "Dal" : "Off-peak",
       payback: nl ? "⏳ TERUGVERDIEN" : "⏳ PAYBACK",
       paidBack: nl ? "Terugverdiend" : "Paid back",
       of: nl ? "van" : "of",
       years: nl ? "jaar" : "years",
       currentlyInBattery: nl ? "Actueel in accu" : "Currently in battery",
+    };
+  }
+
+  parseTimeToMinutes(value, fallback) {
+    if (typeof value !== "string") return fallback;
+
+    const match = value.trim().match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return fallback;
+
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return fallback;
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return fallback;
+
+    return (hours * 60) + minutes;
+  }
+
+  isOffpeakNow() {
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 6 = Saturday
+    const weekendOffpeak = this.config.weekend_offpeak !== false;
+
+    if (weekendOffpeak && (day === 0 || day === 6)) {
+      return true;
+    }
+
+    const current = (now.getHours() * 60) + now.getMinutes();
+    const start = this.parseTimeToMinutes(this.config.offpeak_start, 23 * 60);
+    const end = this.parseTimeToMinutes(this.config.offpeak_end, 7 * 60);
+
+    if (start === end) return false;
+
+    if (start < end) {
+      return current >= start && current < end;
+    }
+
+    return current >= start || current < end;
+  }
+
+  getTariffInfo(labels) {
+    const tariffMode = this.config.tariff_mode || "simple";
+
+    if (tariffMode === "nl_dual") {
+      const normalPrice = Number(
+        this.config.normal_electricity_price !== null && this.config.normal_electricity_price !== undefined
+          ? this.config.normal_electricity_price
+          : this.config.electricity_price || 0
+      );
+
+      const offpeakPrice = Number(
+        this.config.offpeak_electricity_price !== null && this.config.offpeak_electricity_price !== undefined
+          ? this.config.offpeak_electricity_price
+          : normalPrice
+      );
+
+      const feedInCompensation = Number(
+        this.config.feed_in_compensation !== null && this.config.feed_in_compensation !== undefined
+          ? this.config.feed_in_compensation
+          : this.config.feed_in_price || 0
+      );
+
+      const feedInCosts = Number(this.config.feed_in_costs || 0);
+      const feedInPrice = feedInCompensation - feedInCosts;
+
+      const isOffpeak = this.isOffpeakNow();
+      const electricityPrice = isOffpeak ? offpeakPrice : normalPrice;
+      const benefit = electricityPrice - feedInPrice;
+
+      return {
+        mode: "nl_dual",
+        label: isOffpeak ? labels.offpeakTariff : labels.normalTariff,
+        electricityPrice,
+        feedInPrice,
+        benefit,
+      };
+    }
+
+    const electricityPrice = Number(this.config.electricity_price || 0);
+    const feedInPrice = Number(this.config.feed_in_price || 0);
+    const benefit = electricityPrice - feedInPrice;
+
+    return {
+      mode: "simple",
+      label: labels.simpleTariff,
+      electricityPrice,
+      feedInPrice,
+      benefit,
     };
   }
 
@@ -105,9 +210,8 @@ class HyxiUltraDashboardCard extends HTMLElement {
     const efficiency = charged > 0 ? Math.min((discharged / charged) * 100, 100) : 0;
     const cycles = capacity > 0 ? discharged / capacity : 0;
 
-    const electricityPrice = Number(this.config.electricity_price || 0);
-    const feedInPrice = Number(this.config.feed_in_price || 0);
-    const benefit = electricityPrice - feedInPrice;
+    const tariffInfo = this.getTariffInfo(labels);
+    const benefit = tariffInfo.benefit;
 
     const totalSavings = discharged * benefit;
     const currentSavings = (dischargingPower / 1000) * benefit;
@@ -460,6 +564,12 @@ class HyxiUltraDashboardCard extends HTMLElement {
           font-size: 21px;
         }
 
+        .tariff-line {
+          font-size: 12px;
+          margin-top: 2px;
+          opacity: 0.92;
+        }
+
         .divider {
           width: 82%;
           height: 1px;
@@ -699,6 +809,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
             <div class="divider"></div>
             <div class="section-sub">${labels.currentSavings}</div>
             <div class="green small">€ ${currentSavings.toFixed(2)}</div>
+            <div class="section-sub tariff-line">${labels.tariffNow}: <b>${tariffInfo.label}</b></div>
           </div>
 
           <div class="section">
@@ -746,6 +857,14 @@ class HyxiUltraDashboardCard extends HTMLElement {
       investment: 2222.99,
       electricity_price: 0.22568,
       feed_in_price: 0.10,
+      tariff_mode: "simple",
+      normal_electricity_price: null,
+      offpeak_electricity_price: null,
+      feed_in_compensation: null,
+      feed_in_costs: 0,
+      offpeak_start: "23:00",
+      offpeak_end: "07:00",
+      weekend_offpeak: true,
       extra_benefit: 33.38,
       start_date: "2026-05-01",
       language: "en",
@@ -764,5 +883,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "hyxi-ultra-dashboard-card",
   name: "HYXi Ultra Dashboard Card",
-  description: "A neon dashboard card for HYXi HALO battery systems with bundled image, dynamic LED ring and SOC overlay.",
+  description: "A neon dashboard card for HYXi HALO battery systems with bundled image, dynamic LED ring, SOC overlay and optional Dutch dual tariff mode.",
 });
