@@ -2,13 +2,16 @@ type: custom:hyxi-ultra-dashboard-card
 serial: "123456789"
 capacity: 9.2
 investment: 2222.99
+
 tariff_mode: nl_dual
-normal_electricity_price: 0.27568
-offpeak_electricity_price: 0.24500
+normal_electricity_price: 0.22568
+offpeak_electricity_price: 0.22326
 feed_in_compensation: 0.10
 feed_in_costs: 0.00
 offpeak_start: "23:00"
 offpeak_end: "07:00"
 weekend_offpeak: true
+
+extra_benefit: 33.38
 start_date: "2026-05-01"
 language: nl
