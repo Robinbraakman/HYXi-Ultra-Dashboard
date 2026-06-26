@@ -926,7 +926,7 @@ class HyxiUltraDashboardCard extends HTMLElement {
             <div class="divider"></div>
             <div class="section-sub">${labels.currentSavings}</div>
             <div class="green small">€ ${currentSavings.toFixed(2)}</div>
-            <div class="section-sub tariff-line">${labels.tariffNow}: <b>${currentTariffInfo.label}</b></div>
+            ${this.config.tariff_mode === "nl_dual" ? `<div class="section-sub tariff-line">${labels.tariffNow}: <b>${currentTariffInfo.label}</b></div>` : ""}
             ${this.config.tariff_mode === "nl_dual" ? `<div class="section-sub tariff-line">${labels.totalTariffAverage}: <b>€ ${totalTariffInfo.electricityPrice.toFixed(5)}/kWh</b></div>` : ""}
           </div>
 
