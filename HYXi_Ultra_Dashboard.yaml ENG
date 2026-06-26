@@ -1,16 +1,9 @@
-title: HYXi Battery Dashboard
-views:
-  - title: HYXi Battery
-    path: hyxi-battery
-    icon: mdi:battery
-    panel: true
-    cards:
-      - type: custom:hyxi-ultra-dashboard-card
-        serial: "123456789"
-        language: en
-        capacity: 9.2
-        investment: 2222.99
-        electricity_price: 0.22568
-        feed_in_price: 0.10
-        extra_benefit: 33.38
-        start_date: "2026-05-01"
+type: custom:hyxi-ultra-dashboard-card
+serial: "123456789"
+capacity: 9.2
+investment: 2222.99
+electricity_price: 0.22568
+feed_in_price: 0.10
+extra_benefit: 33.38
+start_date: "2026-05-01"
+language: en
