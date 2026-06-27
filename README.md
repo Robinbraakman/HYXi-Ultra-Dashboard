@@ -410,7 +410,31 @@ views:
 
 ---
 
-## 🧩 Card-only example
+## 🧪 Example dashboards
+
+This repository includes ready-to-copy YAML examples:
+
+```text
+examples/card-only-en.yaml
+examples/card-only-nl.yaml
+examples/full-neon-dashboard-en.yaml
+examples/full-neon-dashboard-nl.yaml
+
+Card-only examples
+
+Use the card-only examples if you only want to add the HYXi Ultra Dashboard Card to an existing dashboard.
+
+Full neon dashboard examples
+
+Use the full neon dashboard examples if you want a complete HYXi-only dashboard with:
+
+HYXi Ultra Dashboard Card
+neon KPI cards
+tariff and savings information
+history graphs
+raw HYXi sensor overview
+
+Replace 123456789 with your own HYXi serial number before using the examples.
 
 You can also add the card manually to an existing dashboard.
 
@@ -506,15 +530,19 @@ discharged_correction: 0
 
 ---
 
+
 ## 📂 Included files
 
 ```text
 dist/hyxi-ultra-dashboard-card.js
 dist/hyxihalopgnnieuw.png
+examples/card-only-en.yaml
+examples/card-only-nl.yaml
+examples/full-neon-dashboard-en.yaml
+examples/full-neon-dashboard-nl.yaml
 hacs.json
 README.md
 LICENSE
-```
 
 Optional YAML examples may also be included for users who prefer manual configuration.
 
@@ -550,9 +578,15 @@ MIT License
 
 ## ☕ Support the project
 
-Do you find this dashboard useful?
+HYXi Ultra Dashboard is a free community project.
 
-☕ Buy me a coffee:  
+Building, testing and maintaining this dashboard takes time.  
+If this project helps you, you can support future development here:
+
+☕ **Buy me a coffee:**  
 https://paypal.me/deadbyrobin
 
+You can also support the project by giving this repository a ⭐ Star on GitHub.
+
+Thank you for your support!
 ⭐ Or give this repository a Star on GitHub.
