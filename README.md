@@ -33,7 +33,6 @@ This project provides a custom Lovelace card for Home Assistant, designed as a w
 
 <img width="1628" height="720" alt="image" src="https://github.com/user-attachments/assets/1545151f-dd4a-4f0b-b7cb-bf8acf80ca5e" />
 
-
 ---
 
 This version no longer requires a long button-card YAML configuration.  
@@ -419,22 +418,27 @@ examples/card-only-en.yaml
 examples/card-only-nl.yaml
 examples/full-neon-dashboard-en.yaml
 examples/full-neon-dashboard-nl.yaml
+```
 
-Card-only examples
+### Card-only examples
 
 Use the card-only examples if you only want to add the HYXi Ultra Dashboard Card to an existing dashboard.
 
-Full neon dashboard examples
+### Full neon dashboard examples
 
 Use the full neon dashboard examples if you want a complete HYXi-only dashboard with:
 
-HYXi Ultra Dashboard Card
-neon KPI cards
-tariff and savings information
-history graphs
-raw HYXi sensor overview
+* HYXi Ultra Dashboard Card
+* neon KPI cards
+* tariff and savings information
+* history graphs
+* raw HYXi sensor overview
 
-Replace 123456789 with your own HYXi serial number before using the examples.
+Replace `123456789` with your own HYXi serial number before using the examples.
+
+---
+
+## 🧩 Card-only example
 
 You can also add the card manually to an existing dashboard.
 
@@ -530,7 +534,6 @@ discharged_correction: 0
 
 ---
 
-
 ## 📂 Included files
 
 ```text
@@ -543,8 +546,9 @@ examples/full-neon-dashboard-nl.yaml
 hacs.json
 README.md
 LICENSE
+```
 
-Optional YAML examples may also be included for users who prefer manual configuration.
+Optional YAML examples are included for users who prefer manual configuration.
 
 ---
 
@@ -589,4 +593,3 @@ https://paypal.me/deadbyrobin
 You can also support the project by giving this repository a ⭐ Star on GitHub.
 
 Thank you for your support!
-⭐ Or give this repository a Star on GitHub.
