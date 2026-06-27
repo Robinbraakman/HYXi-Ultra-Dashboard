@@ -31,7 +31,8 @@ This project provides a custom Lovelace card for Home Assistant, designed as a w
 
 ## 📸 Screenshot
 
-<img width="1636" height="683" alt="image" src="https://github.com/user-attachments/assets/a07308fc-fe47-401b-94c9-82043a5fb54b" />
+<img width="1628" height="720" alt="image" src="https://github.com/user-attachments/assets/1545151f-dd4a-4f0b-b7cb-bf8acf80ca5e" />
+
 
 ---
 
