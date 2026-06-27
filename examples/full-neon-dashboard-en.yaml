@@ -1,0 +1,535 @@
+# HYXi Full Neon Dashboard EN
+# Replace 123456789 with your own HYXi serial number.
+#
+# Required:
+# - HYXi Ultra Dashboard Card
+# - button-card
+# - card-mod
+#
+# Optional:
+# Adjust tariffs, investment, start_date and correction values to your own situation.
+
+title: HYXi Full Neon Dashboard
+views:
+  - title: HYXi Neon
+    path: hyxi_neon
+    icon: mdi:battery
+    panel: true
+    type: panel
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: |
+              # 🔋 HYXI FULL NEON DASHBOARD
+              ### Live battery status • tariffs • performance • history
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 28px;
+                  padding: 20px;
+                  text-align: center;
+                  background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
+                  border: 1px solid rgba(0,200,255,0.75);
+                  border-left: 4px solid rgba(102,255,122,0.95);
+                  box-shadow:
+                    0 0 18px rgba(0,180,255,0.75),
+                    inset 0 0 24px rgba(0,80,255,0.32),
+                    0 0 30px rgba(102,255,122,0.24);
+                  color: #9eeeff;
+                  overflow: hidden;
+                }
+                h1 {
+                  color: #dffbff !important;
+                  text-shadow: 0 0 12px rgba(0,180,255,0.95);
+                  margin: 0;
+                  font-weight: 900;
+                  letter-spacing: 1px;
+                }
+                h3 {
+                  color: #9eeeff !important;
+                  margin: 6px 0 0 0;
+                  font-weight: 700;
+                  text-shadow: 0 0 8px rgba(0,180,255,0.65);
+                }
+
+          - type: custom:hyxi-ultra-dashboard-card
+            serial: "123456789"
+            capacity: 9.2
+            investment: 2222.99
+            tariff_mode: "nl_dual"
+            normal_electricity_price: 0.22568
+            offpeak_electricity_price: 0.22326
+            feed_in_compensation: 0.10
+            feed_in_costs: 0.00
+            offpeak_start: "23:00"
+            offpeak_end: "07:00"
+            weekend_offpeak: true
+            extra_benefit: 0
+            start_date: "2026-05-01"
+            language: en
+            charged_correction: 0
+            discharged_correction: 0
+
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: custom:button-card
+                entity: sensor.hyxi_123456789_batsoc
+                name: BATTERY SOC
+                icon: mdi:battery
+                show_state: true
+                show_label: true
+                label: |
+                  [[[
+                    const v = parseFloat(entity.state) || 0;
+                    if (v >= 80) return "High / full";
+                    if (v >= 40) return "Normal";
+                    if (v >= 15) return "Low";
+                    return "Almost empty";
+                  ]]]
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(102,255,122,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(102,255,122,0.22)
+                    - color: "#9eeeff"
+                  name:
+                    - font-weight: 900
+                    - color: "#dffbff"
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  state:
+                    - font-size: 28px
+                    - font-weight: 900
+                    - color: "#66ff7a"
+                    - text-shadow: 0 0 12px rgba(102,255,122,0.85)
+                  label:
+                    - color: "#9eeeff"
+                    - font-weight: 700
+                  icon:
+                    - color: "#66ff7a"
+                    - filter: drop-shadow(0 0 8px rgba(102,255,122,0.9))
+
+              - type: custom:button-card
+                entity: sensor.hyxi_123456789_bat_charging
+                name: CHARGING
+                icon: mdi:battery-arrow-up
+                show_state: true
+                show_label: true
+                label: |
+                  [[[
+                    const w = parseFloat(entity.state) || 0;
+                    if (w > 50) return "Battery is charging";
+                    return "Not charging";
+                  ]]]
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(0,191,255,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(0,191,255,0.22)
+                    - color: "#9eeeff"
+                  name:
+                    - font-weight: 900
+                    - color: "#dffbff"
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  state:
+                    - font-size: 28px
+                    - font-weight: 900
+                    - color: "#00bfff"
+                    - text-shadow: 0 0 12px rgba(0,180,255,0.9)
+                  label:
+                    - color: "#9eeeff"
+                    - font-weight: 700
+                  icon:
+                    - color: "#00bfff"
+                    - filter: drop-shadow(0 0 8px rgba(0,180,255,0.9))
+
+              - type: custom:button-card
+                entity: sensor.hyxi_123456789_bat_discharging
+                name: DISCHARGING
+                icon: mdi:home-lightning-bolt
+                show_state: true
+                show_label: true
+                label: |
+                  [[[
+                    const w = parseFloat(entity.state) || 0;
+                    if (w > 50) return "Home runs on battery";
+                    return "Not discharging";
+                  ]]]
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(255,155,53,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(255,155,53,0.22)
+                    - color: "#9eeeff"
+                  name:
+                    - font-weight: 900
+                    - color: "#dffbff"
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  state:
+                    - font-size: 28px
+                    - font-weight: 900
+                    - color: "#ff9b35"
+                    - text-shadow: 0 0 12px rgba(255,120,0,0.9)
+                  label:
+                    - color: "#9eeeff"
+                    - font-weight: 700
+                  icon:
+                    - color: "#ff9b35"
+                    - filter: drop-shadow(0 0 8px rgba(255,120,0,0.9))
+
+              - type: custom:button-card
+                entity: sensor.hyxi_123456789_totaledchg
+                name: TOTAL DISCHARGED
+                icon: mdi:battery-minus
+                show_state: true
+                show_label: true
+                label: "Cumulative"
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(102,255,122,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(102,255,122,0.22)
+                    - color: "#9eeeff"
+                  name:
+                    - font-weight: 900
+                    - color: "#dffbff"
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  state:
+                    - font-size: 28px
+                    - font-weight: 900
+                    - color: "#66ff7a"
+                    - text-shadow: 0 0 12px rgba(102,255,122,0.85)
+                  label:
+                    - color: "#9eeeff"
+                    - font-weight: 700
+                  icon:
+                    - color: "#66ff7a"
+                    - filter: drop-shadow(0 0 8px rgba(102,255,122,0.9))
+
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: custom:button-card
+                name: 📊 ENERGY TOTAL
+                show_icon: false
+                show_state: false
+                custom_fields:
+                  content: |
+                    [[[
+                      const get = id => {
+                        const v = parseFloat(states[id]?.state);
+                        return Number.isFinite(v) ? v : 0;
+                      };
+
+                      const chargedRaw = get('sensor.hyxi_123456789_totalechg');
+                      const dischargedRaw = get('sensor.hyxi_123456789_totaledchg');
+
+                      const chargedCorrection = 0;
+                      const dischargedCorrection = 0;
+
+                      const charged = Math.max(0, chargedRaw - chargedCorrection);
+                      const discharged = Math.max(0, dischargedRaw - dischargedCorrection);
+                      const loss = Math.max(0, charged - discharged);
+                      const efficiency = charged > 0 ? Math.min((discharged / charged) * 100, 100) : 0;
+                      const cycles = 9.2 > 0 ? discharged / 9.2 : 0;
+
+                      return `
+                        <div class="wrap">
+                          <div class="row"><span>⚡ Charged</span><b>${charged.toFixed(1)} kWh</b></div>
+                          <div class="row"><span>🔌 Discharged</span><b>${discharged.toFixed(1)} kWh</b></div>
+                          <div class="row"><span>🔄 Cycles</span><b>${cycles.toFixed(1)}</b></div>
+                          <div class="row"><span>📈 Efficiency</span><b>${efficiency.toFixed(1)}%</b></div>
+                          <div class="row"><span>📉 Loss</span><b>${loss.toFixed(1)} kWh</b></div>
+                        </div>
+                      `;
+                    ]]]
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(102,255,122,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(102,255,122,0.20)
+                    - color: "#9eeeff"
+                  name:
+                    - color: "#dffbff"
+                    - font-weight: 900
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  custom_fields:
+                    content:
+                      - width: 100%
+                extra_styles: |
+                  .wrap {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-top: 10px;
+                  }
+                  .row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 8px 10px;
+                    border-radius: 14px;
+                    background: rgba(0, 180, 255, 0.08);
+                    border: 1px solid rgba(158,238,255,0.18);
+                  }
+                  .row span {
+                    color: #9eeeff;
+                    font-weight: 800;
+                  }
+                  .row b {
+                    color: #66ff7a;
+                    font-size: 18px;
+                    text-shadow: 0 0 10px rgba(102,255,122,0.7);
+                  }
+
+              - type: custom:button-card
+                name: 💰 TARIFF & SAVINGS
+                show_icon: false
+                show_state: false
+                custom_fields:
+                  content: |
+                    [[[
+                      const normal = 0.22568;
+                      const offpeak = 0.22326;
+                      const feedCompensation = 0.10;
+                      const feedCosts = 0.00;
+                      const feed = feedCompensation - feedCosts;
+
+                      const now = new Date();
+                      const day = now.getDay();
+                      const minutes = now.getHours() * 60 + now.getMinutes();
+                      const start = 23 * 60;
+                      const end = 7 * 60;
+                      const weekend = day === 0 || day === 6;
+                      const isOffpeak = weekend || minutes >= start || minutes < end;
+                      const tariff = isOffpeak ? offpeak : normal;
+                      const benefit = tariff - feed;
+
+                      const discharging = parseFloat(states['sensor.hyxi_123456789_bat_discharging']?.state) || 0;
+                      const currentSavings = (discharging / 1000) * benefit;
+
+                      return `
+                        <div class="wrap">
+                          <div class="row"><span>🇳🇱 Current tariff</span><b>${isOffpeak ? 'Off-peak' : 'Normal'}</b></div>
+                          <div class="row"><span>⚡ Active tariff</span><b>€ ${tariff.toFixed(5)}</b></div>
+                          <div class="row"><span>🔁 Net feed-in</span><b>€ ${feed.toFixed(2)}</b></div>
+                          <div class="row"><span>💸 Savings now/hour</span><b>€ ${currentSavings.toFixed(2)}</b></div>
+                        </div>
+                      `;
+                    ]]]
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(255,155,53,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(255,155,53,0.20)
+                    - color: "#9eeeff"
+                  name:
+                    - color: "#dffbff"
+                    - font-weight: 900
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  custom_fields:
+                    content:
+                      - width: 100%
+                extra_styles: |
+                  .wrap {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-top: 10px;
+                  }
+                  .row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 8px 10px;
+                    border-radius: 14px;
+                    background: rgba(0, 180, 255, 0.08);
+                    border: 1px solid rgba(158,238,255,0.18);
+                  }
+                  .row span {
+                    color: #9eeeff;
+                    font-weight: 800;
+                  }
+                  .row b {
+                    color: #ff9b35;
+                    font-size: 18px;
+                    text-shadow: 0 0 10px rgba(255,120,0,0.7);
+                  }
+
+              - type: custom:button-card
+                name: 🧮 CONFIGURATION
+                show_icon: false
+                show_state: false
+                custom_fields:
+                  content: |
+                    [[[
+                      return `
+                        <div class="wrap">
+                          <div class="row"><span>Serial number</span><b>123456789</b></div>
+                          <div class="row"><span>Investment</span><b>€ 2222.99</b></div>
+                          <div class="row"><span>Start date</span><b>2026-05-01</b></div>
+                          <div class="row"><span>Charged correction</span><b>0 kWh</b></div>
+                          <div class="row"><span>Discharged correction</span><b>0 kWh</b></div>
+                        </div>
+                      `;
+                    ]]]
+                styles:
+                  card:
+                    - border-radius: 24px
+                    - padding: 18px
+                    - background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94))
+                    - border: 1px solid rgba(0,200,255,0.75)
+                    - border-left: 4px solid rgba(0,191,255,0.95)
+                    - box-shadow: 0 0 16px rgba(0,180,255,0.75), inset 0 0 22px rgba(0,80,255,0.32), 0 0 26px rgba(0,191,255,0.20)
+                    - color: "#9eeeff"
+                  name:
+                    - color: "#dffbff"
+                    - font-weight: 900
+                    - text-shadow: 0 0 8px rgba(0,180,255,0.9)
+                  custom_fields:
+                    content:
+                      - width: 100%
+                extra_styles: |
+                  .wrap {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-top: 10px;
+                  }
+                  .row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 8px 10px;
+                    border-radius: 14px;
+                    background: rgba(0, 180, 255, 0.08);
+                    border: 1px solid rgba(158,238,255,0.18);
+                  }
+                  .row span {
+                    color: #9eeeff;
+                    font-weight: 800;
+                  }
+                  .row b {
+                    color: #00bfff;
+                    font-size: 18px;
+                    text-shadow: 0 0 10px rgba(0,180,255,0.75);
+                  }
+
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: history-graph
+                title: 🔋 SOC last 24 hours
+                hours_to_show: 24
+                refresh_interval: 60
+                entities:
+                  - entity: sensor.hyxi_123456789_batsoc
+                    name: SOC
+                card_mod:
+                  style: |
+                    ha-card {
+                      border-radius: 24px;
+                      background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
+                      border: 1px solid rgba(0,200,255,0.75);
+                      border-left: 4px solid rgba(102,255,122,0.95);
+                      box-shadow:
+                        0 0 16px rgba(0,180,255,0.75),
+                        inset 0 0 22px rgba(0,80,255,0.32),
+                        0 0 26px rgba(102,255,122,0.18);
+                      color: #9eeeff;
+                    }
+                    .card-header {
+                      color: #dffbff !important;
+                      font-weight: 900 !important;
+                      text-shadow: 0 0 8px rgba(0,180,255,0.9);
+                    }
+
+              - type: history-graph
+                title: ⚡ Charging / discharging last 24 hours
+                hours_to_show: 24
+                refresh_interval: 60
+                entities:
+                  - entity: sensor.hyxi_123456789_bat_charging
+                    name: Charging
+                  - entity: sensor.hyxi_123456789_bat_discharging
+                    name: Discharging
+                card_mod:
+                  style: |
+                    ha-card {
+                      border-radius: 24px;
+                      background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
+                      border: 1px solid rgba(0,200,255,0.75);
+                      border-left: 4px solid rgba(255,155,53,0.95);
+                      box-shadow:
+                        0 0 16px rgba(0,180,255,0.75),
+                        inset 0 0 22px rgba(0,80,255,0.32),
+                        0 0 26px rgba(255,155,53,0.18);
+                      color: #9eeeff;
+                    }
+                    .card-header {
+                      color: #dffbff !important;
+                      font-weight: 900 !important;
+                      text-shadow: 0 0 8px rgba(0,180,255,0.9);
+                    }
+
+          - type: entities
+            title: 🔍 Raw HYXi sensors
+            show_header_toggle: false
+            entities:
+              - entity: sensor.hyxi_123456789_batsoc
+                name: SOC
+              - entity: sensor.hyxi_123456789_totalechg
+                name: Total charged
+              - entity: sensor.hyxi_123456789_totaledchg
+                name: Total discharged
+              - entity: sensor.hyxi_123456789_bat_charging
+                name: Charging power
+              - entity: sensor.hyxi_123456789_bat_discharging
+                name: Discharging power
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 24px;
+                  background: linear-gradient(145deg, rgba(4,8,20,0.98), rgba(8,16,34,0.94));
+                  border: 1px solid rgba(0,200,255,0.75);
+                  border-left: 4px solid rgba(102,255,122,0.95);
+                  box-shadow:
+                    0 0 16px rgba(0,180,255,0.75),
+                    inset 0 0 22px rgba(0,80,255,0.32),
+                    0 0 26px rgba(102,255,122,0.18);
+                  color: #9eeeff;
+                }
+                .card-header {
+                  color: #dffbff !important;
+                  font-weight: 900 !important;
+                  text-shadow: 0 0 8px rgba(0,180,255,0.9);
+                }
+                .name {
+                  color: #9eeeff !important;
+                }
+                .value {
+                  color: #00bfff !important;
+                  font-weight: 800;
+                }
